@@ -34,7 +34,7 @@ export interface HistoryEntry {
 
 type StoredState = Omit<BroadcastState, "watchingHere" | "channelLogin">;
 
-const offline = (): StoredState => ({ status: "OFFLINE", updatedAt: new Date().toISOString() });
+const offline = (updatedAt = new Date().toISOString()): StoredState => ({ status: "OFFLINE", updatedAt });
 
 function dateParts(iso: string) {
   const date = new Date(iso);
@@ -58,7 +58,7 @@ async function watchingHere() {
 async function readState(): Promise<StoredState> {
   const redis = getRedis();
   if (!redis) return offline();
-  return (await redis.get<StoredState>(STATE_KEY)) ?? offline();
+  return (await redis.get<StoredState>(STATE_KEY)) ?? offline("1970-01-01T00:00:00.000Z");
 }
 
 function stateFromStream(stream: TwitchStream): StoredState {
