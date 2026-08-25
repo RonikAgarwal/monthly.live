@@ -35,6 +35,8 @@ NEXT_PUBLIC_PRESENCE_HEARTBEAT_SECONDS=30
 
 `TWITCH_CLIENT_SECRET`, `TWITCH_EVENTSUB_SECRET`, and the Upstash token are server-only. Do not prefix them with `NEXT_PUBLIC_`.
 
+If you installed Upstash through Vercel and see `KV_REST_API_URL` and `KV_REST_API_TOKEN` instead, use those names as supplied; the application supports both naming conventions. Do not use the read-only token.
+
 Run locally:
 
 ```bash
