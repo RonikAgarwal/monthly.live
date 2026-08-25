@@ -14,7 +14,6 @@ export default function StreamPlayer({ isLive, streamUrl }: StreamPlayerProps) {
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [error, setError] = useState(false);
-  const [useGif, setUseGif] = useState(false);
 
   const destroyHls = useCallback(() => {
     if (hlsRef.current) {
@@ -26,20 +25,7 @@ export default function StreamPlayer({ isLive, streamUrl }: StreamPlayerProps) {
   // Handle static video (offline state)
   useEffect(() => {
     if (isLive) return;
-    const video = videoRef.current;
-    if (!video) return;
-
     destroyHls();
-    setUseGif(false);
-    video.src = "/assets/static.mp4";
-    video.loop = true;
-    video.muted = true;
-    video.play().catch(() => {});
-    // If mp4 missing, try gif
-    video.onerror = () => {
-      video.onerror = null;
-      setUseGif(true);
-    };
   }, [isLive, destroyHls]);
 
   // Handle live stream
@@ -135,9 +121,12 @@ export default function StreamPlayer({ isLive, streamUrl }: StreamPlayerProps) {
       />
 
       {/* Video element */}
-      {(!isLive && useGif) ? (
-        <img
-          src="/assets/static.gif"
+      {isLive ? (
+        <video
+          ref={videoRef}
+          muted={isMuted}
+          playsInline
+          autoPlay
           style={{
             width: "100%",
             display: "block",
@@ -147,12 +136,8 @@ export default function StreamPlayer({ isLive, streamUrl }: StreamPlayerProps) {
           }}
         />
       ) : (
-        <video
-          ref={videoRef}
-          muted={isMuted}
-          playsInline
-          autoPlay
-          loop={!isLive}
+        <img
+          src="/assets/static.gif"
           style={{
             width: "100%",
             display: "block",
