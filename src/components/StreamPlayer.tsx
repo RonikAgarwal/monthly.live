@@ -174,117 +174,121 @@ export default function StreamPlayer({ isLive, streamUrl }: StreamPlayerProps) {
         </div>
       )}
 
-      {/* Controls overlay */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: "8px 12px",
-          display: "flex",
-          gap: "12px",
-          alignItems: "center",
-          background: "linear-gradient(transparent, rgba(0,0,0,0.8))",
-          zIndex: 4,
-          opacity: 0,
-          transition: "opacity 0.3s",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.opacity = "1";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.opacity = "0";
-        }}
-      >
-        <button
-          onClick={togglePlay}
+      {/* Controls overlay (only when live) */}
+      {isLive && (
+        <div
           style={{
-            background: "transparent",
-            border: "none",
-            color: "#888",
-            fontFamily: '"Courier New", monospace',
-            fontSize: "11px",
-            padding: "2px 4px",
-            cursor: "pointer",
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            padding: "8px 12px",
+            display: "flex",
+            gap: "12px",
+            alignItems: "center",
+            background: "linear-gradient(transparent, rgba(0,0,0,0.8))",
+            zIndex: 4,
+            opacity: 0,
+            transition: "opacity 0.3s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "1";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "0";
           }}
         >
-          {isPlaying ? "[ pause ]" : "[ play ]"}
-        </button>
+          <button
+            onClick={togglePlay}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "#888",
+              fontFamily: '"Courier New", monospace',
+              fontSize: "11px",
+              padding: "2px 4px",
+              cursor: "pointer",
+            }}
+          >
+            {isPlaying ? "[ pause ]" : "[ play ]"}
+          </button>
 
-        <button
-          onClick={toggleMute}
-          style={{
-            background: "transparent",
-            border: "none",
-            color: isMuted ? "#cc0000" : "#888",
-            fontFamily: '"Courier New", monospace',
-            fontSize: "11px",
-            padding: "2px 4px",
-            cursor: "pointer",
-          }}
-        >
-          {isMuted ? "[ unmute ]" : "[ mute ]"}
-        </button>
+          <button
+            onClick={toggleMute}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: isMuted ? "#cc0000" : "#888",
+              fontFamily: '"Courier New", monospace',
+              fontSize: "11px",
+              padding: "2px 4px",
+              cursor: "pointer",
+            }}
+          >
+            {isMuted ? "[ unmute ]" : "[ mute ]"}
+          </button>
 
-        <button
-          onClick={toggleFullscreen}
-          style={{
-            background: "transparent",
-            border: "none",
-            color: "#888",
-            fontFamily: '"Courier New", monospace',
-            fontSize: "11px",
-            padding: "2px 4px",
-            cursor: "pointer",
-          }}
-        >
-          [ fullscreen ]
-        </button>
-      </div>
+          <button
+            onClick={toggleFullscreen}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "#888",
+              fontFamily: '"Courier New", monospace',
+              fontSize: "11px",
+              padding: "2px 4px",
+              cursor: "pointer",
+            }}
+          >
+            [ fullscreen ]
+          </button>
+        </div>
+      )}
 
-      {/* Touch controls for mobile */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "8px",
-          right: "12px",
-          display: "flex",
-          gap: "8px",
-          zIndex: 4,
-        }}
-        className="mobile-controls"
-      >
-        <button
-          onClick={toggleMute}
+      {/* Touch controls for mobile (only when live) */}
+      {isLive && (
+        <div
           style={{
-            background: "rgba(0,0,0,0.6)",
-            border: "1px solid #333",
-            color: isMuted ? "#cc0000" : "#888",
-            fontFamily: '"Courier New", monospace',
-            fontSize: "10px",
-            padding: "4px 8px",
-            cursor: "pointer",
+            position: "absolute",
+            bottom: "8px",
+            right: "12px",
+            display: "flex",
+            gap: "8px",
+            zIndex: 4,
           }}
+          className="mobile-controls"
         >
-          {isMuted ? "🔇" : "🔊"}
-        </button>
+          <button
+            onClick={toggleMute}
+            style={{
+              background: "rgba(0,0,0,0.6)",
+              border: "1px solid #333",
+              color: isMuted ? "#cc0000" : "#888",
+              fontFamily: '"Courier New", monospace',
+              fontSize: "10px",
+              padding: "4px 8px",
+              cursor: "pointer",
+            }}
+          >
+            {isMuted ? "🔇" : "🔊"}
+          </button>
 
-        <button
-          onClick={toggleFullscreen}
-          style={{
-            background: "rgba(0,0,0,0.6)",
-            border: "1px solid #333",
-            color: "#888",
-            fontFamily: '"Courier New", monospace',
-            fontSize: "10px",
-            padding: "4px 8px",
-            cursor: "pointer",
-          }}
-        >
-          ⛶
-        </button>
-      </div>
+          <button
+            onClick={toggleFullscreen}
+            style={{
+              background: "rgba(0,0,0,0.6)",
+              border: "1px solid #333",
+              color: "#888",
+              fontFamily: '"Courier New", monospace',
+              fontSize: "10px",
+              padding: "4px 8px",
+              cursor: "pointer",
+            }}
+          >
+            ⛶
+          </button>
+        </div>
+      )}
 
       <style>{`
         .mobile-controls { display: none; }
