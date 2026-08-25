@@ -38,40 +38,7 @@ const DEFAULT_DATA: SiteData = {
     streamUrl: "",
     listeners: 0,
   },
-  history: [
-    {
-      id: "h1",
-      number: 4,
-      title: "2100_24082026",
-      date: "24.08.26",
-      wentLiveAt: "21:00",
-      duration: "1:42:00",
-    },
-    {
-      id: "h2",
-      number: 3,
-      title: "2230_21082026",
-      date: "21.08.26",
-      wentLiveAt: "22:30",
-      duration: "2:05:00",
-    },
-    {
-      id: "h3",
-      number: 2,
-      title: "2000_18082026",
-      date: "18.08.26",
-      wentLiveAt: "20:00",
-      duration: "0:45:00",
-    },
-    {
-      id: "h4",
-      number: 1,
-      title: "2115_14082026",
-      date: "14.08.26",
-      wentLiveAt: "21:15",
-      duration: "1:30:00",
-    },
-  ],
+  history: [],
 };
 
 // In-memory store (replaced with file-based in production)

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import PasswordGate from "@/components/PasswordGate";
 import Transition from "@/components/Transition";
@@ -45,6 +45,9 @@ export default function AdminPage() {
     wentLiveAt: "",
     duration: "",
   });
+
+  // Track live session start time
+  const liveStartRef = useRef<Date | null>(null);
 
   // Load data
   useEffect(() => {
@@ -218,7 +221,6 @@ export default function AdminPage() {
             <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
               <button
                 onClick={() => {
-                  // Auto-generate set name from current time + date
                   const now = new Date();
                   const hh = String(now.getHours()).padStart(2, "0");
                   const mm = String(now.getMinutes()).padStart(2, "0");
@@ -226,6 +228,7 @@ export default function AdminPage() {
                   const mo = String(now.getMonth() + 1).padStart(2, "0");
                   const yyyy = now.getFullYear();
                   const autoName = `${hh}${mm}_${dd}${mo}${yyyy}`;
+                  liveStartRef.current = now;
                   setBroadcast({ ...broadcast, isLive: true, setName: broadcast.setName || autoName });
                 }}
                 style={{
@@ -241,7 +244,44 @@ export default function AdminPage() {
                 LIVE
               </button>
               <button
-                onClick={() => setBroadcast({ ...broadcast, isLive: false })}
+                onClick={async () => {
+                  setBroadcast({ ...broadcast, isLive: false });
+                  // Auto-save history entry
+                  const now = new Date();
+                  const startTime = liveStartRef.current || now;
+                  const diffMs = now.getTime() - startTime.getTime();
+                  const totalSec = Math.floor(diffMs / 1000);
+                  const durH = Math.floor(totalSec / 3600);
+                  const durM = Math.floor((totalSec % 3600) / 60);
+                  const durS = totalSec % 60;
+                  const duration = `${durH}:${String(durM).padStart(2, "0")}:${String(durS).padStart(2, "0")}`;
+
+                  const hh = String(startTime.getHours()).padStart(2, "0");
+                  const mm = String(startTime.getMinutes()).padStart(2, "0");
+                  const dd = String(startTime.getDate()).padStart(2, "0");
+                  const mo = String(startTime.getMonth() + 1).padStart(2, "0");
+                  const yyyy = startTime.getFullYear();
+                  const date = `${dd}.${mo}.${String(yyyy).slice(-2)}`;
+                  const wentLiveAt = `${hh}:${mm}`;
+                  const title = `${hh}${mm}_${dd}${mo}${yyyy}`;
+
+                  const maxNum = history.reduce((max, e) => Math.max(max, e.number), 0);
+                  await fetch("/api/history", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      number: maxNum + 1,
+                      title,
+                      date,
+                      wentLiveAt,
+                      duration,
+                    }),
+                  });
+                  const res = await fetch("/api/history");
+                  const data = await res.json();
+                  setHistory(data);
+                  liveStartRef.current = null;
+                }}
                 style={{
                   background: !broadcast.isLive ? "#333" : "transparent",
                   border: "1px solid #333",
