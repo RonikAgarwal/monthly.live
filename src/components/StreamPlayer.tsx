@@ -14,6 +14,7 @@ export default function StreamPlayer({ isLive, streamUrl }: StreamPlayerProps) {
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [error, setError] = useState(false);
+  const [useGif, setUseGif] = useState(false);
 
   const destroyHls = useCallback(() => {
     if (hlsRef.current) {
@@ -29,6 +30,7 @@ export default function StreamPlayer({ isLive, streamUrl }: StreamPlayerProps) {
     if (!video) return;
 
     destroyHls();
+    setUseGif(false);
     video.src = "/assets/static.mp4";
     video.loop = true;
     video.muted = true;
@@ -36,8 +38,7 @@ export default function StreamPlayer({ isLive, streamUrl }: StreamPlayerProps) {
     // If mp4 missing, try gif
     video.onerror = () => {
       video.onerror = null;
-      video.src = "/assets/static.gif";
-      video.play().catch(() => {});
+      setUseGif(true);
     };
   }, [isLive, destroyHls]);
 
@@ -134,20 +135,33 @@ export default function StreamPlayer({ isLive, streamUrl }: StreamPlayerProps) {
       />
 
       {/* Video element */}
-      <video
-        ref={videoRef}
-        muted={isMuted}
-        playsInline
-        autoPlay
-        loop={!isLive}
-        style={{
-          width: "100%",
-          display: "block",
-          background: "#000",
-          aspectRatio: "16/9",
-          objectFit: "contain",
-        }}
-      />
+      {(!isLive && useGif) ? (
+        <img
+          src="/assets/static.gif"
+          style={{
+            width: "100%",
+            display: "block",
+            background: "#000",
+            aspectRatio: "16/9",
+            objectFit: "contain",
+          }}
+        />
+      ) : (
+        <video
+          ref={videoRef}
+          muted={isMuted}
+          playsInline
+          autoPlay
+          loop={!isLive}
+          style={{
+            width: "100%",
+            display: "block",
+            background: "#000",
+            aspectRatio: "16/9",
+            objectFit: "contain",
+          }}
+        />
+      )}
 
       {/* Error state */}
       {error && isLive && (
