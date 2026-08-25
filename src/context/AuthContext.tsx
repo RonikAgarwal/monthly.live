@@ -19,6 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const restoreSession = window.setTimeout(() => {
     // Check existing session
     try {
       const stored = localStorage.getItem(AUTH_KEY);
@@ -34,6 +35,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem(AUTH_KEY);
     }
     setIsLoading(false);
+    }, 0);
+    return () => window.clearTimeout(restoreSession);
   }, []);
 
   const authenticate = useCallback(async (password: string): Promise<boolean> => {

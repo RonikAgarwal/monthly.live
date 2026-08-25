@@ -6,13 +6,15 @@ import PasswordGate from "@/components/PasswordGate";
 import Transition from "@/components/Transition";
 import Navigation from "@/components/Navigation";
 import StreamPlayer from "@/components/StreamPlayer";
+import PresenceHeartbeat from "@/components/PresenceHeartbeat";
 
 interface BroadcastState {
-  isLive: boolean;
-  djName: string;
-  setName: string;
-  streamUrl: string;
-  listeners: number;
+  status: "LIVE" | "OFFLINE";
+  startedAt?: string;
+  title?: string;
+  twitchViewers?: number;
+  watchingHere: number;
+  channelLogin?: string;
 }
 
 export default function Home() {
@@ -20,11 +22,8 @@ export default function Home() {
   const [showTransition, setShowTransition] = useState(false);
   const [showSite, setShowSite] = useState(false);
   const [broadcast, setBroadcast] = useState<BroadcastState>({
-    isLive: false,
-    djName: "HOST",
-    setName: "",
-    streamUrl: "",
-    listeners: 0,
+    status: "OFFLINE",
+    watchingHere: 0,
   });
 
   const fetchBroadcast = useCallback(async () => {
@@ -39,12 +38,15 @@ export default function Home() {
     }
   }, []);
 
-  // Poll broadcast state
+  // This refreshes our backend state; Twitch detection stays server-side.
   useEffect(() => {
     if (!showSite) return;
-    fetchBroadcast();
-    const interval = setInterval(fetchBroadcast, 5000);
-    return () => clearInterval(interval);
+    const initialFetch = window.setTimeout(fetchBroadcast, 0);
+    const interval = setInterval(fetchBroadcast, 30_000);
+    return () => {
+      window.clearTimeout(initialFetch);
+      clearInterval(interval);
+    };
   }, [showSite, fetchBroadcast]);
 
   const handlePasswordComplete = useCallback(() => {
@@ -121,7 +123,7 @@ export default function Home() {
         </div>
 
         {/* Live status */}
-        {broadcast.isLive && (
+        {broadcast.status === "LIVE" && (
           <div
             style={{
               fontFamily: '"Courier New", monospace',
@@ -137,15 +139,15 @@ export default function Home() {
               ●
             </span>
             LIVE
-            {broadcast.listeners > 0 && (
+            {broadcast.watchingHere > 0 && (
               <span style={{ color: "#444", fontSize: "11px" }}>
-                {broadcast.listeners} listening
+                {broadcast.watchingHere} watching here
               </span>
             )}
           </div>
         )}
 
-        {!broadcast.isLive && (
+        {broadcast.status !== "LIVE" && (
           <div
             style={{
               fontFamily: '"Courier New", monospace',
@@ -161,13 +163,13 @@ export default function Home() {
         {/* Stream player */}
         <div style={{ border: "1px solid #1a1a1a", marginBottom: "16px" }}>
           <StreamPlayer
-            isLive={broadcast.isLive}
-            streamUrl={broadcast.streamUrl}
+            isLive={broadcast.status === "LIVE"}
+            channelLogin={broadcast.channelLogin}
           />
         </div>
 
         {/* Set info */}
-        {broadcast.isLive && (
+        {broadcast.status === "LIVE" && (
           <div
             style={{
               fontFamily: '"Courier New", monospace',
@@ -177,17 +179,22 @@ export default function Home() {
             }}
           >
             <div>
-              DJ: <span style={{ color: "#999" }}>{broadcast.djName}</span>
+              CHANNEL: <span style={{ color: "#999" }}>{broadcast.channelLogin}</span>
             </div>
-            {broadcast.setName && (
+            {broadcast.title && (
               <div>
-                SET: <span style={{ color: "#999" }}>{broadcast.setName}</span>
+                SET: <span style={{ color: "#999" }}>{broadcast.title}</span>
+              </div>
+            )}
+            {broadcast.twitchViewers !== undefined && (
+              <div style={{ color: "#444", fontSize: "11px" }}>
+                TWITCH VIEWERS: {broadcast.twitchViewers}
               </div>
             )}
           </div>
         )}
 
-        {!broadcast.isLive && (
+        {broadcast.status !== "LIVE" && (
           <div
             style={{
               fontFamily: '"Courier New", monospace',
@@ -204,6 +211,8 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      <PresenceHeartbeat active={showSite && broadcast.status === "LIVE"} />
 
       {/* Footer */}
       <footer

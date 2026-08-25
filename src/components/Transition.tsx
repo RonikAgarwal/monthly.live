@@ -84,7 +84,7 @@ export default function Transition({ onComplete }: { onComplete: () => void }) {
               position: "absolute",
               inset: 0,
               opacity: 0.1,
-              background: `radial-gradient(circle at ${Math.random() * 100}% ${Math.random() * 100}%, rgba(255,255,255,0.2) 0%, transparent 50%)`,
+              background: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.2) 0%, transparent 50%)",
             }}
           />
         </div>

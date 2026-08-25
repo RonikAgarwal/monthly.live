@@ -1,17 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getData, updateBroadcast } from "@/lib/data";
+import { NextResponse } from "next/server";
+import { getPublicBroadcastState } from "@/lib/broadcast";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const data = getData();
-  return NextResponse.json(data.broadcast);
-}
-
-export async function PATCH(request: NextRequest) {
   try {
-    const body = await request.json();
-    const updated = updateBroadcast(body);
-    return NextResponse.json(updated);
+    return NextResponse.json(await getPublicBroadcastState(), {
+      headers: { "Cache-Control": "no-store" },
+    });
   } catch {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    return NextResponse.json({ status: "OFFLINE", watchingHere: 0, updatedAt: new Date().toISOString() }, { headers: { "Cache-Control": "no-store" } });
   }
 }
