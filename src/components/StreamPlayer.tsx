@@ -18,10 +18,16 @@ export default function StreamPlayer({ isLive, channelLogin }: StreamPlayerProps
   }, [channelLogin, isLive, parent]);
 
   useEffect(() => {
-    if (!source) return;
+    if (!source) {
+      setLoaded(false);
+      setError(false);
+      return;
+    }
+    if (loaded) return;
+
     const timeout = window.setTimeout(() => setError(true), 15_000);
     return () => window.clearTimeout(timeout);
-  }, [source]);
+  }, [source, loaded]);
 
   return (
     <div style={{ position: "relative", width: "100%", background: "#000", aspectRatio: "16/9" }}>

@@ -39,15 +39,16 @@ export default function Home() {
   }, []);
 
   // This refreshes our backend state; Twitch detection stays server-side.
+  const isSiteVisible = isAuthenticated || showSite;
   useEffect(() => {
-    if (!showSite) return;
+    if (!isSiteVisible) return;
     const initialFetch = window.setTimeout(fetchBroadcast, 0);
     const interval = setInterval(fetchBroadcast, 30_000);
     return () => {
       window.clearTimeout(initialFetch);
       clearInterval(interval);
     };
-  }, [showSite, fetchBroadcast]);
+  }, [isSiteVisible, fetchBroadcast]);
 
   const handlePasswordComplete = useCallback(() => {
     setShowTransition(true);
@@ -212,7 +213,7 @@ export default function Home() {
         )}
       </main>
 
-      <PresenceHeartbeat active={showSite && broadcast.status === "LIVE"} />
+      <PresenceHeartbeat active={isSiteVisible && broadcast.status === "LIVE"} />
 
       {/* Footer */}
       <footer
