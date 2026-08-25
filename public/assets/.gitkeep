@@ -1,0 +1,24 @@
+# Assets Directory
+
+Place your static video file here:
+
+- `/assets/static.mp4` - TV static video for offline state
+
+The stream player will automatically load this file when the broadcast is offline.
+The video should:
+- Loop
+- Look like old TV static / no signal
+- Be muted by default
+- Fill the entire player area
+
+## Streaming Setup
+
+The website supports HLS streaming. Configure your stream URL in the admin panel.
+
+Typical OBS streaming workflow:
+1. OBS → Stream to your streaming service (e.g., YouTube Live, Twitch, custom RTMP server)
+2. Streaming service provides HLS URL (e.g., `https://stream.example.com/live/stream.m3u8`)
+3. Enter HLS URL in admin panel
+4. Website automatically plays the live stream
+
+The static video will be replaced by the live stream when you go live.

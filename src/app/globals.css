@@ -1,0 +1,315 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #000000;
+  --color-foreground: #b0b0b0;
+  --color-accent: #cc0000;
+  --color-dim: #444444;
+  --color-surface: #0a0a0a;
+  --font-mono: "Courier New", "Lucida Console", Monaco, monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  background: #000000;
+  color: #b0b0b0;
+  font-family: "Courier New", "Lucida Console", Monaco, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: #cc0000;
+  color: #000000;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #222222;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #333333;
+}
+
+/* CRT scanlines overlay */
+.crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+/* Subtle screen flicker */
+@keyframes flicker {
+  0% { opacity: 1.0; }
+  3% { opacity: 0.97; }
+  6% { opacity: 1.0; }
+  9% { opacity: 0.98; }
+  12% { opacity: 1.0; }
+  50% { opacity: 1.0; }
+  52% { opacity: 0.96; }
+  54% { opacity: 1.0; }
+  100% { opacity: 1.0; }
+}
+
+.crt-flicker {
+  animation: flicker 8s infinite;
+}
+
+/* CRT vignette */
+.crt-vignette::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 60%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+}
+
+/* Static noise background */
+@keyframes noise {
+  0%, 100% { background-position: 0 0; }
+  10% { background-position: -5% -10%; }
+  20% { background-position: -15% 5%; }
+  30% { background-position: 7% -25%; }
+  40% { background-position: 20% 25%; }
+  50% { background-position: -25% 10%; }
+  60% { background-position: 15% 5%; }
+  70% { background-position: 0% 15%; }
+  80% { background-position: 25% 35%; }
+  90% { background-position: -10% 10%; }
+}
+
+/* Glitch text effect */
+@keyframes glitch {
+  0% { text-shadow: 2px 0 #cc0000, -2px 0 #0000ff; }
+  25% { text-shadow: -2px 0 #cc0000, 2px 0 #0000ff; }
+  50% { text-shadow: 1px 0 #cc0000, -1px 0 #0000ff; }
+  75% { text-shadow: -1px 0 #cc0000, 1px 0 #0000ff; }
+  100% { text-shadow: 2px 0 #cc0000, -2px 0 #0000ff; }
+}
+
+.glitch-text {
+  animation: glitch 3s infinite;
+}
+
+/* Blinking cursor */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* CRT turn on effect */
+@keyframes crt-turn-on {
+  0% {
+    transform: scaleY(0.005) scaleX(0.3);
+    filter: brightness(30);
+    opacity: 0;
+  }
+  10% {
+    transform: scaleY(0.005) scaleX(0.3);
+    filter: brightness(30);
+    opacity: 1;
+  }
+  25% {
+    transform: scaleY(0.8) scaleX(0.9);
+    filter: brightness(1.5);
+  }
+  50% {
+    transform: scaleY(1.0) scaleX(1.0);
+    filter: brightness(1.0);
+  }
+  100% {
+    transform: scaleY(1.0) scaleX(1.0);
+    filter: brightness(1.0);
+  }
+}
+
+/* VHS tracking lines */
+@keyframes vhs-tracking {
+  0% { transform: translateX(0); }
+  2% { transform: translateX(-3px); }
+  4% { transform: translateX(2px); }
+  6% { transform: translateX(0); }
+  100% { transform: translateX(0); }
+}
+
+/* Red glow */
+.red-glow {
+  text-shadow: 0 0 4px rgba(204, 0, 0, 0.6);
+}
+
+/* Underline links old-web style */
+a {
+  color: #cc0000;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  color: #ff3333;
+}
+
+/* Input styles */
+input[type="text"],
+input[type="password"] {
+  background: #0a0a0a;
+  border: 1px solid #333333;
+  color: #b0b0b0;
+  font-family: "Courier New", "Lucida Console", Monaco, monospace;
+  font-size: 13px;
+  padding: 4px 8px;
+  outline: none;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+  border-color: #cc0000;
+}
+
+/* Button styles */
+button {
+  background: #0a0a0a;
+  border: 1px solid #333333;
+  color: #b0b0b0;
+  font-family: "Courier New", "Lucida Console", Monaco, monospace;
+  font-size: 13px;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: #cc0000;
+  color: #ffffff;
+}
+
+button:active {
+  background: #cc0000;
+  color: #000000;
+  border-color: #cc0000;
+}
+
+/* Pulse animation for LIVE indicator */
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.live-pulse {
+  animation: pulse-red 1.5s ease-in-out infinite;
+}
+
+/* Fade in */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fade-in 0.5s ease-in;
+}
+
+/* Page transition */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-in {
+  animation: page-in 0.3s ease-out;
+}
+
+/* Text type effect */
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  html, body {
+    font-size: 12px;
+  }
+
+  /* Tighter CRT scanlines on mobile for performance */
+  .crt-overlay {
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.1) 0px,
+      rgba(0, 0, 0, 0.1) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  }
+}
+
+/* Prevent horizontal scroll on all screens */
+html {
+  overflow-x: hidden;
+}
+
+/* Touch-friendly tap targets on mobile */
+@media (hover: none) and (pointer: coarse) {
+  button {
+    min-height: 36px;
+  }
+
+  a {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* Input number spinner removal */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
