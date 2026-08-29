@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 const ERROR_MESSAGES = [
   "no",
@@ -15,8 +15,8 @@ const ERROR_MESSAGES = [
   "■",
 ];
 
-export default function PasswordGate({ onComplete }: { onComplete: () => void }) {
-  const { authenticate } = useAuth();
+export default function GatePage() {
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [phase, setPhase] = useState<"input" | "checking" | "connecting" | "done">("input");
@@ -37,26 +37,33 @@ export default function PasswordGate({ onComplete }: { onComplete: () => void })
 
     await new Promise((r) => setTimeout(r, 600 + Math.random() * 400));
 
-    const success = await authenticate(password);
+    try {
+      const res = await fetch("/api/gate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      
+      if (!res.ok) {
+        throw new Error("Invalid password");
+      }
 
-    if (!success) {
+      setPhase("connecting");
+      setStatusText("connecting...");
+
+      await new Promise((r) => setTimeout(r, 500 + Math.random() * 300));
+      setStatusText("...");
+
+      await new Promise((r) => setTimeout(r, 300 + Math.random() * 200));
+
+      setPhase("done");
+      router.push("/");
+    } catch {
       setPhase("input");
       setError(ERROR_MESSAGES[Math.floor(Math.random() * ERROR_MESSAGES.length)]);
       setPassword("");
       inputRef.current?.focus();
-      return;
     }
-
-    setPhase("connecting");
-    setStatusText("connecting...");
-
-    await new Promise((r) => setTimeout(r, 500 + Math.random() * 300));
-    setStatusText("...");
-
-    await new Promise((r) => setTimeout(r, 300 + Math.random() * 200));
-
-    setPhase("done");
-    onComplete();
   };
 
   if (phase === "checking" || phase === "connecting") {
@@ -100,7 +107,6 @@ export default function PasswordGate({ onComplete }: { onComplete: () => void })
         padding: "20px",
       }}
     >
-      {/* Subtle noise texture */}
       <div
         style={{
           position: "absolute",

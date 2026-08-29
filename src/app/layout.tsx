@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { AuthProvider } from "@/context/AuthContext";
+
+import "7.css/dist/7.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,25 +14,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet" />
+      </head>
       <body
-        className="crt-flicker"
         style={{
-          background: "#000",
-          color: "#b0b0b0",
-          fontFamily: '"Courier New", "Lucida Console", Monaco, monospace',
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
+          margin: 0,
+          padding: 0,
+          overflow: "hidden",
+          fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+          fontSize: "12px",
         }}
       >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-        {/* CRT scanlines */}
-        <div className="crt-overlay" />
-        {/* CRT vignette */}
-        <div className="crt-vignette" />
+        {children}
       </body>
     </html>
   );

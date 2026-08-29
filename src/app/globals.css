@@ -1,13 +1,4 @@
-@import "tailwindcss";
-
-@theme inline {
-  --color-background: #000000;
-  --color-foreground: #b0b0b0;
-  --color-accent: #cc0000;
-  --color-dim: #444444;
-  --color-surface: #0a0a0a;
-  --font-mono: "Courier New", "Lucida Console", Monaco, monospace;
-}
+/* === MONTHLY.LIVE — Windows 7 Desktop Theme === */
 
 * {
   margin: 0;
@@ -17,299 +8,434 @@
 
 html, body {
   height: 100%;
-  background: #000000;
-  color: #b0b0b0;
-  font-family: "Courier New", "Lucida Console", Monaco, monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  overflow-x: hidden;
+  overflow: hidden;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 12px;
 }
 
 ::selection {
-  background: #cc0000;
-  color: #000000;
+  background: #3399ff;
+  color: #fff;
 }
 
-::-webkit-scrollbar {
-  width: 6px;
+/* === Scrollbar (Win7 style) === */
+::-webkit-scrollbar { width: 14px; }
+::-webkit-scrollbar-track { background: #f0f0f0; border-left: 1px solid #ccc; }
+::-webkit-scrollbar-thumb { background: linear-gradient(to right, #c0c0c0, #d8d8d8, #c0c0c0); border: 1px solid #999; border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(to right, #aaa, #bbb, #aaa); }
+::-webkit-scrollbar-button { display: block; height: 14px; background: #e0e0e0; border: 1px solid #999; }
+
+/* === Pulse animation for LIVE indicator === */
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.live-pulse { animation: pulse-red 1.5s ease-in-out infinite; }
+
+/* === Toast slide-in === */
+@keyframes slideInRight {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
-::-webkit-scrollbar-track {
-  background: #000000;
+@keyframes slideOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(120%); opacity: 0; }
 }
 
-::-webkit-scrollbar-thumb {
-  background: #222222;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #333333;
-}
-
-/* CRT scanlines overlay */
-.crt-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 9999;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.15) 0px,
-    rgba(0, 0, 0, 0.15) 1px,
-    transparent 1px,
-    transparent 2px
-  );
-}
-
-/* Subtle screen flicker */
-@keyframes flicker {
-  0% { opacity: 1.0; }
-  3% { opacity: 0.97; }
-  6% { opacity: 1.0; }
-  9% { opacity: 0.98; }
-  12% { opacity: 1.0; }
-  50% { opacity: 1.0; }
-  52% { opacity: 0.96; }
-  54% { opacity: 1.0; }
-  100% { opacity: 1.0; }
-}
-
-.crt-flicker {
-  animation: flicker 8s infinite;
-}
-
-/* CRT vignette */
-.crt-vignette::after {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 9998;
-  background: radial-gradient(
-    ellipse at center,
-    transparent 60%,
-    rgba(0, 0, 0, 0.5) 100%
-  );
-}
-
-/* Static noise background */
-@keyframes noise {
-  0%, 100% { background-position: 0 0; }
-  10% { background-position: -5% -10%; }
-  20% { background-position: -15% 5%; }
-  30% { background-position: 7% -25%; }
-  40% { background-position: 20% 25%; }
-  50% { background-position: -25% 10%; }
-  60% { background-position: 15% 5%; }
-  70% { background-position: 0% 15%; }
-  80% { background-position: 25% 35%; }
-  90% { background-position: -10% 10%; }
-}
-
-/* Glitch text effect */
-@keyframes glitch {
-  0% { text-shadow: 2px 0 #cc0000, -2px 0 #0000ff; }
-  25% { text-shadow: -2px 0 #cc0000, 2px 0 #0000ff; }
-  50% { text-shadow: 1px 0 #cc0000, -1px 0 #0000ff; }
-  75% { text-shadow: -1px 0 #cc0000, 1px 0 #0000ff; }
-  100% { text-shadow: 2px 0 #cc0000, -2px 0 #0000ff; }
-}
-
-.glitch-text {
-  animation: glitch 3s infinite;
-}
-
-/* Blinking cursor */
+/* === Blink for gate page === */
 @keyframes blink {
   0%, 49% { opacity: 1; }
   50%, 100% { opacity: 0; }
 }
 
-.blink {
-  animation: blink 1s step-end infinite;
+/* === Desktop wallpaper text float === */
+@keyframes floatText {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
 }
 
-/* CRT turn on effect */
-@keyframes crt-turn-on {
-  0% {
-    transform: scaleY(0.005) scaleX(0.3);
-    filter: brightness(30);
-    opacity: 0;
-  }
-  10% {
-    transform: scaleY(0.005) scaleX(0.3);
-    filter: brightness(30);
-    opacity: 1;
-  }
-  25% {
-    transform: scaleY(0.8) scaleX(0.9);
-    filter: brightness(1.5);
-  }
-  50% {
-    transform: scaleY(1.0) scaleX(1.0);
-    filter: brightness(1.0);
-  }
-  100% {
-    transform: scaleY(1.0) scaleX(1.0);
-    filter: brightness(1.0);
-  }
+/* === Desktop Icon hover === */
+.desktop-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 6px;
+  width: 76px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  transition: background 0.1s;
+  user-select: none;
+}
+.desktop-icon:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.desktop-icon.selected {
+  background: rgba(80, 130, 200, 0.35);
+  border-color: rgba(100, 160, 255, 0.5);
+}
+.desktop-icon-label {
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.9), 0 0 5px rgba(0,0,0,0.7);
+  font-size: 11px;
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.3;
+  max-width: 72px;
 }
 
-/* VHS tracking lines */
-@keyframes vhs-tracking {
-  0% { transform: translateX(0); }
-  2% { transform: translateX(-3px); }
-  4% { transform: translateX(2px); }
-  6% { transform: translateX(0); }
-  100% { transform: translateX(0); }
+/* === Win7 Taskbar glass === */
+.win7-taskbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to bottom,
+    rgba(50, 70, 100, 0.92) 0%,
+    rgba(30, 50, 80, 0.95) 40%,
+    rgba(20, 40, 70, 0.97) 100%
+  );
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(120, 160, 220, 0.4);
+  display: flex;
+  align-items: center;
+  padding: 0 2px;
+  z-index: 9999;
+  box-shadow: 0 -1px 4px rgba(0,0,0,0.3);
 }
 
-/* Red glow */
-.red-glow {
-  text-shadow: 0 0 4px rgba(204, 0, 0, 0.6);
+.win7-start-btn {
+  width: 48px;
+  height: 36px;
+  border-radius: 3px 18px 18px 3px;
+  background: linear-gradient(to bottom, #4a8fe8, #2d6bc4, #1a50a0);
+  border: 1px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+  transition: all 0.1s;
+}
+.win7-start-btn:hover {
+  background: linear-gradient(to bottom, #5aa0f0, #3d7bd4, #2a60b0);
+  box-shadow: 0 1px 6px rgba(100,160,255,0.4), inset 0 1px 0 rgba(255,255,255,0.4);
+}
+.win7-start-btn:active {
+  background: linear-gradient(to bottom, #2060a0, #1a4888, #103670);
 }
 
-/* Underline links old-web style */
-a {
-  color: #cc0000;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+/* Taskbar app buttons */
+.taskbar-app-btn {
+  height: 32px;
+  min-width: 44px;
+  max-width: 170px;
+  padding: 0 10px;
+  margin: 0 1px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.1s;
+}
+.taskbar-app-btn:hover {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.2);
+}
+.taskbar-app-btn.active {
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(120,180,255,0.4);
+  box-shadow: 0 0 6px rgba(100,160,255,0.2);
 }
 
-a:hover {
-  color: #ff3333;
+/* System tray */
+.sys-tray {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  border-left: 1px solid rgba(255,255,255,0.1);
+  color: #d0d8e8;
+  font-size: 11px;
+  margin-left: auto;
 }
 
-/* Input styles */
-input[type="text"],
-input[type="password"] {
-  background: #0a0a0a;
-  border: 1px solid #333333;
-  color: #b0b0b0;
-  font-family: "Courier New", "Lucida Console", Monaco, monospace;
-  font-size: 13px;
+/* === Window frame overrides for Win7 Aero === */
+.win7-window {
+  border-radius: 6px 6px 0 0;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
+}
+.win7-window .title-bar {
+  background: linear-gradient(to bottom, rgba(60,90,130,0.95), rgba(40,65,100,0.95));
+  border-bottom: 1px solid rgba(0,0,0,0.3);
   padding: 4px 8px;
-  outline: none;
+  backdrop-filter: blur(8px);
+}
+.win7-window .title-bar-text {
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  font-size: 12px;
 }
 
-input[type="text"]:focus,
-input[type="password"]:focus {
-  border-color: #cc0000;
+/* === Start Menu === */
+.win7-start-menu {
+  position: fixed;
+  bottom: 40px;
+  left: 0;
+  width: 380px;
+  background: linear-gradient(to bottom, rgba(40,60,90,0.97), rgba(25,45,75,0.98));
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(100,140,200,0.4);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  z-index: 10001;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
+  display: flex;
+  overflow: hidden;
+}
+.start-menu-left {
+  flex: 1;
+  background: rgba(255,255,255,0.95);
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+}
+.start-menu-right {
+  width: 190px;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  background: rgba(30,55,90,0.6);
+}
+.start-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px;
+  cursor: pointer;
+  font-size: 12px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.1s;
+}
+.start-menu-item:hover {
+  background: rgba(80,130,200,0.25);
+}
+.start-menu-item.left-item {
+  color: #222;
+}
+.start-menu-item.right-item {
+  color: #e0e8f0;
 }
 
-/* Button styles */
-button {
-  background: #0a0a0a;
-  border: 1px solid #333333;
-  color: #b0b0b0;
-  font-family: "Courier New", "Lucida Console", Monaco, monospace;
-  font-size: 13px;
+/* === Gadget === */
+.system-gadget {
+  background: rgba(15, 20, 30, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(60,90,140,0.5);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  overflow: hidden;
+  color: #fff;
+}
+
+/* === Notification Toast === */
+.win7-toast {
+  position: fixed;
+  bottom: 52px;
+  right: 16px;
+  width: 320px;
+  background: linear-gradient(135deg, #1a3a5c 0%, #0d2440 100%);
+  border: 1px solid rgba(80,140,220,0.4);
+  border-radius: 8px;
+  padding: 14px;
+  z-index: 10001;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  animation: slideInRight 0.4s ease-out;
+  color: #fff;
+}
+
+/* === Media Player Dark Theme === */
+.wmp-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: linear-gradient(to bottom, #1a2a3a, #0d1a2a);
+  color: #fff;
+}
+.wmp-tabs {
+  display: flex;
+  gap: 0;
+  background: linear-gradient(to bottom, #2a3a4a, #1a2a3a);
+  border-bottom: 1px solid #0a1520;
+}
+.wmp-tab {
+  padding: 6px 16px;
+  font-size: 11px;
+  background: none;
+  border: none;
+  color: #8899aa;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.wmp-tab:hover { color: #aabbcc; }
+.wmp-tab.active {
+  color: #fff;
+  background: linear-gradient(to bottom, #2070c0, #1860a0);
+  border-radius: 3px 3px 0 0;
+  border-bottom-color: #2080d0;
+}
+.wmp-controls {
+  height: 48px;
+  background: linear-gradient(to bottom, #1a2a3a, #0d1820);
+  border-top: 1px solid #2a3a4a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+.wmp-ctrl-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #ccc;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.wmp-ctrl-btn:hover {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+.wmp-ctrl-btn.play {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(to bottom, #2080d0, #1860a0);
+  border-color: rgba(255,255,255,0.25);
+  font-size: 18px;
+}
+.wmp-ctrl-btn.play:hover {
+  background: linear-gradient(to bottom, #3090e0, #2070b0);
+}
+
+/* === Retro Deck / Webamp === */
+.webamp-deck-player { position: absolute; inset: 0; overflow: auto; }
+.retro-deck-stage { position: relative; width: 100%; height: 100%; overflow: visible; }
+.retro-skin-widget {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(20, 32, 54, 0.82);
+  backdrop-filter: blur(10px);
+  color: #e8eef8;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+.retro-skin-widget-label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: #cfd9ea;
+}
+.retro-skin-widget select {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  color: #eef5ff;
+  background: #101a2a;
+  border: 1px solid #4c6284;
+  border-radius: 2px;
+  font: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+}
+@media (max-width: 600px) {
+  .retro-skin-widget { padding: 8px 10px; }
+}
+
+/* === File Explorer === */
+.explorer-sidebar {
+  width: 180px;
+  background: linear-gradient(to bottom, #e8ecf0, #d0d8e0);
+  border-right: 1px solid #b0b8c0;
+  padding: 8px 0;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.explorer-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #333;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+.explorer-sidebar-item:hover { background: rgba(0,100,200,0.1); }
+.explorer-sidebar-header {
   padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1a5090;
   cursor: pointer;
 }
-
-button:hover {
-  border-color: #cc0000;
-  color: #ffffff;
+.explorer-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px inset #ccc;
+  font-size: 12px;
+  flex: 1;
+}
+.explorer-file-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
 }
 
-button:active {
-  background: #cc0000;
-  color: #000000;
-  border-color: #cc0000;
-}
-
-/* Pulse animation for LIVE indicator */
-@keyframes pulse-red {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-.live-pulse {
-  animation: pulse-red 1.5s ease-in-out infinite;
-}
-
-/* Fade in */
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.fade-in {
-  animation: fade-in 0.5s ease-in;
-}
-
-/* Page transition */
-@keyframes page-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.page-in {
-  animation: page-in 0.3s ease-out;
-}
-
-/* Text type effect */
-@keyframes typewriter {
-  from { width: 0; }
-  to { width: 100%; }
-}
-
-/* Mobile responsive */
-@media (max-width: 640px) {
-  html, body {
-    font-size: 12px;
-  }
-
-  /* Tighter CRT scanlines on mobile for performance */
-  .crt-overlay {
-    background: repeating-linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.1) 0px,
-      rgba(0, 0, 0, 0.1) 1px,
-      transparent 1px,
-      transparent 3px
-    );
-  }
-}
-
-/* Prevent horizontal scroll on all screens */
-html {
-  overflow-x: hidden;
-}
-
-/* Touch-friendly tap targets on mobile */
-@media (hover: none) and (pointer: coarse) {
-  button {
-    min-height: 36px;
-  }
-
-  a {
-    min-height: 36px;
-    display: inline-flex;
-    align-items: center;
-  }
-}
-
-/* Input number spinner removal */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type="number"] {
-  -moz-appearance: textfield;
+/* Mobile */
+@media (max-width: 900px) {
+  .win7-taskbar { height: 36px; }
+  .sys-tray { padding: 0 8px; }
+  .desktop-icon { width: 64px; }
+  .desktop-icon-label { font-size: 10px; }
 }
