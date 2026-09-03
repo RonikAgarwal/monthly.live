@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useWindowManager, WindowInstance } from "@/context/WindowManagerContext";
 import AssetIcon from "../ui/AssetIcon";
 
 export default function StartMenu({ onClose, onToggleRetroDeck }: { onClose: () => void; onToggleRetroDeck: () => void }) {
+  const router = useRouter();
   const { openWindow } = useWindowManager();
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -32,20 +34,76 @@ export default function StartMenu({ onClose, onToggleRetroDeck }: { onClose: () 
 
   return (
     <div ref={menuRef} className="win7-start-menu">
+      {/* [REVERT] Simple Start Menu — uncomment to restore:
+      <div className="start-menu-left">
+        <div style={{ padding: "8px 16px", borderBottom: "1px solid #ddd", marginBottom: "4px" }}>
+          <div style={{ fontWeight: 600, fontSize: "13px", color: "#222" }}>MONTHLY.LIVE</div>
+          <div style={{ fontSize: "10px", color: "#888" }}>one room. one signal.</div>
+        </div>
+        <button className="start-menu-item left-item" onClick={() => launch("media-player", { title: "Windows Media Player", id: "media-player" })}>
+          <AssetIcon name="mediaPlayer" size={22} alt="" />
+          <div>
+            <div style={{ fontWeight: 600 }}>Windows Media Player</div>
+            <div style={{ fontSize: "10px", color: "#888" }}>Watch the live stream</div>
+          </div>
+        </button>
+        <button className="start-menu-item left-item" onClick={toggleRetroDeck}>
+          <AssetIcon name="retroDeck" size={22} alt="" />
+          <div>
+            <div style={{ fontWeight: 600 }}>Retro Deck</div>
+            <div style={{ fontSize: "10px", color: "#888" }}>Webamp player with selectable skins</div>
+          </div>
+        </button>
+        <button className="start-menu-item left-item" onClick={() => launch("file-explorer", { title: "Cherry Network", props: { folderId: "cherry" } })}>
+          <AssetIcon name="cherry" size={22} alt="" />
+          <div>
+            <div style={{ fontWeight: 600 }}>Cherry Network</div>
+            <div style={{ fontSize: "10px", color: "#888" }}>Browse the network</div>
+          </div>
+        </button>
+        <button className="start-menu-item left-item" onClick={() => launch("notepad", { title: "Notepad" })}>
+          <AssetIcon name="notepad" size={22} alt="" />
+          <div>
+            <div style={{ fontWeight: 600 }}>Notepad</div>
+          </div>
+        </button>
+        <div style={{ flex: 1 }} />
+        <div style={{ borderTop: "1px solid #ddd", padding: "6px 16px", fontSize: "11px", color: "#888" }}>
+          All Programs ▸
+        </div>
+      </div>
+      <div className="start-menu-right">
+        <button className="start-menu-item right-item" onClick={() => launch("file-explorer", { title: "Computer", props: { folderId: "root" } })}>
+          <AssetIcon name="computer" size={18} alt="" /> Computer
+        </button>
+        <button className="start-menu-item right-item" onClick={() => launch("file-explorer", { title: "Documents", props: { folderId: "cherry" } })}>
+          <AssetIcon name="folderDocuments" size={18} alt="" /> Documents
+        </button>
+        <button className="start-menu-item right-item" onClick={() => launch("file-explorer", { title: "Pictures", props: { folderId: "gallery" } })}>
+          <AssetIcon name="folderPictures" size={18} alt="" /> Pictures
+        </button>
+        <button className="start-menu-item right-item" onClick={() => launch("file-explorer", { title: "Music", props: { folderId: "cherry" } })}>
+          <AssetIcon name="folderMusic" size={18} alt="" /> Music
+        </button>
+        <button className="start-menu-item right-item" onClick={() => launch("file-explorer", { title: "Events", props: { folderId: "events" } })}>
+          <AssetIcon name="folderDocuments" size={18} alt="" /> Events
+        </button>
+        <div style={{ flex: 1 }} />
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", padding: "6px 16px", display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", color: "#c0c8d0" }}>
+          <span aria-hidden="true" className="start-menu-lock" /> Log off
+        </div>
+      </div>
+      */}
+
       {/* Left Panel — Programs (white background) */}
       <div className="sm-left">
-        {/* User profile area */}
         <div className="sm-user-area">
           <div className="sm-user-avatar">
             <img src="/assets/icons/apps/cherry-network.png" alt="" style={{ width: "100%", height: "100%", borderRadius: "3px" }} />
           </div>
           <div className="sm-user-name">MONTHLY.LIVE</div>
         </div>
-
-        {/* Separator */}
         <div className="sm-separator" />
-
-        {/* Programs list */}
         <div className="sm-programs-list">
           <button className="sm-program-item" onClick={() => launch("media-player", { title: "Windows Media Player", id: "media-player" })}>
             <div className="sm-program-icon">
@@ -53,21 +111,18 @@ export default function StartMenu({ onClose, onToggleRetroDeck }: { onClose: () 
             </div>
             <div className="sm-program-label">Windows Media Player</div>
           </button>
-
           <button className="sm-program-item" onClick={toggleRetroDeck}>
             <div className="sm-program-icon">
               <AssetIcon name="retroDeck" size={28} alt="" />
             </div>
             <div className="sm-program-label">Retro Deck</div>
           </button>
-
           <button className="sm-program-item" onClick={() => launch("file-explorer", { title: "Cherry Network", props: { folderId: "cherry" } })}>
             <div className="sm-program-icon">
               <AssetIcon name="cherry" size={28} alt="" />
             </div>
             <div className="sm-program-label">Cherry Network</div>
           </button>
-
           <button className="sm-program-item" onClick={() => launch("notepad", { title: "Notepad" })}>
             <div className="sm-program-icon">
               <AssetIcon name="notepad" size={28} alt="" />
@@ -75,19 +130,11 @@ export default function StartMenu({ onClose, onToggleRetroDeck }: { onClose: () 
             <div className="sm-program-label">Notepad</div>
           </button>
         </div>
-
-        {/* Spacer */}
         <div style={{ flex: 1 }} />
-
-        {/* Separator */}
         <div className="sm-separator" />
-
-        {/* All Programs */}
         <div className="sm-all-programs">
           <span className="sm-all-programs-arrow">▶</span> All Programs
         </div>
-
-        {/* Search bar */}
         <div className="sm-search-bar">
           <input type="text" placeholder="Search Programs" className="sm-search-input" />
           <div className="sm-search-icon">
@@ -110,7 +157,6 @@ export default function StartMenu({ onClose, onToggleRetroDeck }: { onClose: () 
             </div>
             <span>Documents</span>
           </button>
-
           <button className="sm-right-item" onClick={() => launch("file-explorer", { title: "Pictures", props: { folderId: "gallery" } })}>
             <div className="sm-right-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#e8e8e8">
@@ -119,7 +165,6 @@ export default function StartMenu({ onClose, onToggleRetroDeck }: { onClose: () 
             </div>
             <span>Pictures</span>
           </button>
-
           <button className="sm-right-item" onClick={() => launch("file-explorer", { title: "Music", props: { folderId: "cherry" } })}>
             <div className="sm-right-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#e8e8e8">
@@ -128,7 +173,6 @@ export default function StartMenu({ onClose, onToggleRetroDeck }: { onClose: () 
             </div>
             <span>Music</span>
           </button>
-
           <button className="sm-right-item" onClick={() => launch("file-explorer", { title: "Computer", props: { folderId: "root" } })}>
             <div className="sm-right-icon">
               <AssetIcon name="computer" size={20} alt="" />
@@ -136,10 +180,7 @@ export default function StartMenu({ onClose, onToggleRetroDeck }: { onClose: () 
             <span>Computer</span>
           </button>
         </div>
-
-        {/* Separator */}
         <div className="sm-right-separator" />
-
         <div className="sm-right-items">
           <button className="sm-right-item" onClick={() => launch("file-explorer", { title: "Events", props: { folderId: "events" } })}>
             <div className="sm-right-icon">
@@ -149,7 +190,6 @@ export default function StartMenu({ onClose, onToggleRetroDeck }: { onClose: () 
             </div>
             <span>Control Panel</span>
           </button>
-
           <button className="sm-right-item" onClick={() => launch("file-explorer", { title: "Gallery", props: { folderId: "gallery" } })}>
             <div className="sm-right-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#e8e8e8">
@@ -158,7 +198,6 @@ export default function StartMenu({ onClose, onToggleRetroDeck }: { onClose: () 
             </div>
             <span>Default Programs</span>
           </button>
-
           <button className="sm-right-item sm-help-item">
             <div className="sm-right-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#e8e8e8">
@@ -168,13 +207,9 @@ export default function StartMenu({ onClose, onToggleRetroDeck }: { onClose: () 
             <span>Help and Support</span>
           </button>
         </div>
-
-        {/* Spacer */}
         <div style={{ flex: 1 }} />
-
-        {/* Shut down button */}
         <div className="sm-shutdown-area">
-          <button className="sm-shutdown-btn">
+          <button className="sm-shutdown-btn" onClick={() => router.push("/gate")}>
             <span>Shut down</span>
           </button>
           <button className="sm-shutdown-arrow">

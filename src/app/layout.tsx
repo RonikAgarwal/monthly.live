@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-
-import "7.css/dist/7.css";
 import "./globals.css";
+import "7.css/dist/7.css";
+import ClientLayout from "./ClientLayout";
 
 export const metadata: Metadata = {
   title: "MONTHLY.LIVE",
@@ -20,16 +20,8 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet" />
       </head>
-      <body
-        style={{
-          margin: 0,
-          padding: 0,
-          overflow: "hidden",
-          fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-          fontSize: "12px",
-        }}
-      >
-        {children}
+      <body>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

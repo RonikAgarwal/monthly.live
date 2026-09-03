@@ -299,7 +299,7 @@ html, body {
 
 /* === Window frame overrides for Win7 Aero === */
 
-/* Title-bar control buttons: always-visible icons with hover glow */
+/* [REVERT] Title-bar control buttons: always-visible icons with hover glow — uncomment to restore:
 .win7-window .title-bar-controls button.wcb-btn {
   background: none;
   color: #1a1a2e;
@@ -308,7 +308,6 @@ html, body {
   justify-content: center;
   transition: all 0.15s ease !important;
 }
-/* Kill 7.css ::before layers on our custom buttons */
 .win7-window .title-bar-controls button.wcb-btn::before,
 .win7-window .title-bar-controls button.wcb-btn:active::before,
 .win7-window .title-bar-controls button.wcb-btn:hover::before {
@@ -318,7 +317,6 @@ html, body {
   opacity: 0 !important;
   transition: none !important;
 }
-/* Remove 7.css background images from our custom buttons */
 .win7-window .title-bar-controls button.wcb-btn[aria-label] {
   background: none !important;
 }
@@ -329,6 +327,8 @@ html, body {
   background: linear-gradient(to bottom, #f0a090 0%, #d44020 50%, #a02010 100%) !important;
   color: #fff;
 }
+*/
+
 .win7-window {
   border-radius: 7px;
   overflow: hidden;
@@ -644,6 +644,59 @@ html, body {
   background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0.15));
 }
 
+/* [REVERT] Simple Start Menu CSS — uncomment to restore:
+.win7-start-menu {
+  position: fixed;
+  bottom: 40px;
+  left: 0;
+  width: 380px;
+  background: linear-gradient(to bottom, rgba(40,60,90,0.97), rgba(25,45,75,0.98));
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(100,140,200,0.4);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  z-index: 10001;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
+  display: flex;
+  overflow: hidden;
+}
+.start-menu-left {
+  flex: 1;
+  background: rgba(255,255,255,0.95);
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+}
+.start-menu-right {
+  width: 190px;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  background: rgba(30,55,90,0.6);
+}
+.start-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px;
+  cursor: pointer;
+  font-size: 12px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+.start-menu-item:hover {
+  background: rgba(80,130,200,0.25);
+}
+.start-menu-item.left-item {
+  color: #222;
+}
+.start-menu-item.right-item {
+  color: #e0e8f0;
+}
+*/
+
 /* === Gadget === */
 .system-gadget {
   background: rgba(15, 20, 30, 0.88);
@@ -829,14 +882,13 @@ html, body {
 }
 
 /* === Retro Deck / Webamp === */
+/* [REVERT] Simple Webamp styles — uncomment to restore:
 .webamp-deck-player { position: relative; width: 100%; height: 100%; overflow: visible; }
 .webamp-deck-player::-webkit-scrollbar { display: none; }
 .webamp-deck-player { scrollbar-width: none; }
-.retro-deck-stage { position: relative; width: 100%; height: 100%; overflow: visible; }
-/* Let Webamp windows render freely outside the Rnd frame */
-.retro-deck-stage > div { overflow: visible !important; }
+*/
 
-/* Isolate Webamp from global overrides */
+/* [REVERT] Webamp isolation from global overrides — uncomment to restore: */
 .webamp-deck-player,
 .webamp-deck-player *,
 .webamp-deck-player *::before,
@@ -854,6 +906,10 @@ html, body {
   scrollbar-width: none;
 }
 .webamp-deck-player::-webkit-scrollbar { display: none; }
+
+.retro-deck-stage { position: relative; width: 100%; height: 100%; overflow: visible; }
+/* Let Webamp windows render freely outside the Rnd frame */
+.retro-deck-stage > div { overflow: visible !important; }
 .retro-skin-widget {
   width: 100%;
   height: 100%;
@@ -965,3 +1021,63 @@ body.rnd-resizing * {
   .desktop-icon { width: 64px; }
   .desktop-icon-label { font-size: 10px; }
 }
+
+/* === CRT Effects (mobile) === */
+.crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+@keyframes flicker {
+  0% { opacity: 1.0; }
+  3% { opacity: 0.97; }
+  6% { opacity: 1.0; }
+  9% { opacity: 0.98; }
+  12% { opacity: 1.0; }
+  50% { opacity: 1.0; }
+  52% { opacity: 0.96; }
+  54% { opacity: 1.0; }
+  100% { opacity: 1.0; }
+}
+
+.crt-flicker {
+  animation: flicker 8s infinite;
+}
+
+.crt-vignette::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 60%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+}
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-in {
+  animation: page-in 0.3s ease-out;
+}
+

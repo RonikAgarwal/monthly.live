@@ -33,6 +33,8 @@ export default function GatePage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [phase, setPhase] = useState<"input" | "checking" | "connecting" | "booting" | "done">("input");
+  // [REVERT] New simplified phase:
+  // const [phase, setPhase] = useState<"input" | "checking" | "connecting" | "done">("input");
   const [statusText, setStatusText] = useState("");
   const [bootLines, setBootLines] = useState<string[]>([]);
   const [bootLineIndex, setBootLineIndex] = useState(0);
@@ -77,6 +79,14 @@ export default function GatePage() {
       router.push("/");
     }
   }, [phase, router]);
+
+  // [REVERT] New simplified navigation (uncomment this, comment out the useEffect above):
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   ...
+  //   setPhase("done");
+  //   router.push("/");
+  //   ...
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
