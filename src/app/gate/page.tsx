@@ -3,18 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-const ERROR_MESSAGES = [
-  "no",
-  "wrong signal",
-  "access denied",
-  ".",
-  "denied",
-  "null",
-  "信号错误",
-  "try again",
-  "■",
-];
-
 const BOOT_LINES = [
   "CHERRY+ NETWORK OS v3.2.1",
   "BIOS POST... OK",
@@ -33,7 +21,7 @@ const TAGLINE = "presents MONTHLY.LIVE - first live DJ stream, on-campus experie
 export default function GatePage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [showDenied, setShowDenied] = useState(false);
   const [phase, setPhase] = useState<"input" | "checking" | "connecting" | "booting" | "done">("input");
   // [REVERT] New simplified phase:
   // const [phase, setPhase] = useState<"input" | "checking" | "connecting" | "done">("input");
@@ -94,7 +82,7 @@ export default function GatePage() {
     e.preventDefault();
     if (!password.trim()) return;
 
-    setError("");
+    setShowDenied(false);
     setPhase("checking");
     setStatusText("checking...");
 
@@ -123,9 +111,8 @@ export default function GatePage() {
       setPhase("booting");
     } catch {
       setPhase("input");
-      setError(ERROR_MESSAGES[Math.floor(Math.random() * ERROR_MESSAGES.length)]);
       setPassword("");
-      inputRef.current?.focus();
+      setShowDenied(true);
     }
   };
 
@@ -313,7 +300,6 @@ export default function GatePage() {
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
-              setError("");
             }}
             style={{
               width: "200px",
@@ -356,22 +342,107 @@ export default function GatePage() {
         >
           enter
         </button>
+      </form>
 
-        {error && (
+      {showDenied && (
+        <div
+          role="alertdialog"
+          aria-modal="true"
+          aria-label="Access denied"
+          onClick={() => {
+            setShowDenied(false);
+            inputRef.current?.focus();
+          }}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 10001,
+            background: "rgba(0, 0, 0, 0.88)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+          }}
+        >
           <div
+            onClick={(e) => e.stopPropagation()}
             style={{
-              fontFamily: '"Courier New", monospace',
-              fontSize: "11px",
-              color: "#cc0000",
-              marginTop: "12px",
-              opacity: 0.8,
-              letterSpacing: "1px",
+              width: "min(90vw, 420px)",
+              background: "#0a0505",
+              border: "1px solid #cc0000",
+              boxShadow: "0 0 24px rgba(204, 0, 0, 0.35), inset 0 0 18px rgba(204, 0, 0, 0.07)",
+              padding: "26px 24px 20px",
+              textAlign: "center",
+              cursor: "default",
             }}
           >
-            {error}
+            <div
+              style={{
+                fontFamily: '"Courier New", monospace',
+                fontSize: "17px",
+                fontWeight: 700,
+                letterSpacing: "4px",
+                color: "#cc0000",
+                textShadow: "0 0 12px rgba(204, 0, 0, 0.6)",
+              }}
+            >
+              ACCESS DENIED
+            </div>
+            <div
+              style={{
+                fontFamily: '"Courier New", monospace',
+                marginTop: "16px",
+                fontSize: "13px",
+                letterSpacing: "2px",
+                color: "#FFFD99",
+              }}
+            >
+              DJ IS LIVE<span className="boot-cursor">_</span>
+            </div>
+            <div
+              style={{
+                fontFamily: '"Courier New", monospace',
+                marginTop: "10px",
+                fontSize: "11px",
+                lineHeight: "1.7",
+                color: "#888",
+              }}
+            >
+              wrong password — the correct one is on the story ·{" "}
+              <a
+                href="https://instagram.com/cherry.network"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: "#cc5555" }}
+              >
+                instagram @cherry.network
+              </a>
+            </div>
+            <button
+              autoFocus
+              type="button"
+              onClick={() => {
+                setShowDenied(false);
+                inputRef.current?.focus();
+              }}
+              style={{
+                marginTop: "20px",
+                background: "transparent",
+                border: "1px solid #cc0000",
+                color: "#cc5555",
+                fontFamily: '"Courier New", monospace',
+                fontSize: "11px",
+                padding: "3px 24px",
+                cursor: "pointer",
+                letterSpacing: "2px",
+                textTransform: "lowercase",
+              }}
+            >
+              ok
+            </button>
           </div>
-        )}
-      </form>
+        </div>
+      )}
     </div>
   );
 }

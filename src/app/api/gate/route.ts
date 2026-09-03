@@ -5,7 +5,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { password } = body;
     
-    const expected = process.env.SITE_ACCESS_PASSWORD || '';
+    // Fall back to 'admin' when no env password is configured, so the gate
+    // never silently accepts any password.
+    const expected = process.env.SITE_ACCESS_PASSWORD || 'admin';
     
     // Constant time string comparison
     const encoder = new TextEncoder();
@@ -20,9 +22,6 @@ export async function POST(request: Request) {
         result |= a[i] ^ b[i];
       }
       success = (result === 0);
-    } else if (expected === '') {
-       // if no password set, allow
-       success = true;
     }
     
     if (success) {
