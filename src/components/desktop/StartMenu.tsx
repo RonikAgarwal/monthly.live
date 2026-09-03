@@ -99,7 +99,7 @@ export default function StartMenu({ onClose, onToggleRetroDeck }: { onClose: () 
       <div className="sm-left">
         <div className="sm-user-area">
           <div className="sm-user-avatar">
-            <img src="/assets/icons/apps/cherry-network.png" alt="" style={{ width: "100%", height: "100%", borderRadius: "3px" }} />
+            <img src="/assets/icons/apps/monthly-live-logo.png" alt="" style={{ width: "100%", height: "100%", borderRadius: "3px" }} />
           </div>
           <div className="sm-user-name">MONTHLY.LIVE</div>
         </div>
