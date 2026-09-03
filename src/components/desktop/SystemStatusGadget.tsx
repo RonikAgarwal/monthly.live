@@ -30,8 +30,8 @@ export default function SystemStatusGadget() {
   return (
     <Rnd
       default={{
-        x: 1020,
-        y: 60,
+        x: 1200,
+        y: 680,
         width: 210,
         height: 220,
       }}

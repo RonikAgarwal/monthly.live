@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Rnd } from "react-rnd";
 import { useWindowManager } from "@/context/WindowManagerContext";
 import AppRegistry from "./AppRegistry";
@@ -24,9 +24,19 @@ export default function Desktop() {
   const { windows, openWindow } = useWindowManager();
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [retroDeckVisible, setRetroDeckVisible] = useState(true);
-  const [retroDeckPosition, setRetroDeckPosition] = useState({ x: 220, y: 100 });
-  const [skinWidgetPosition, setSkinWidgetPosition] = useState({ x: 1120, y: 74 });
+  const [retroDeckPosition, setRetroDeckPosition] = useState({ x: 680, y: 140 });
+  const [skinWidgetPosition, setSkinWidgetPosition] = useState({ x: 1100, y: 60 });
   const [skinUrl, setSkinUrl] = useState("/webamp/skins/base-2.91.wsz");
+
+  // Auto-open Media Player on first load
+  useEffect(() => {
+    openWindow("media-player", {
+      title: "Windows Media Player",
+      id: "media-player",
+      position: { x: 80, y: 60 },
+      size: { width: 700, height: 560 },
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleIconClick = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();

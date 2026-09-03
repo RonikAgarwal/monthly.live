@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, ReactNode } from "react";
+import React, { createContext, useContext, useReducer, useCallback, useMemo, ReactNode } from "react";
 
 export type WindowInstance = {
   id: string;
@@ -41,9 +41,7 @@ type Action =
 function windowReducer(state: WindowInstance[], action: Action): WindowInstance[] {
   switch (action.type) {
     case "OPEN_WINDOW": {
-      // Check if instance with same ID already exists
       if (state.find(w => w.id === action.payload.id)) {
-        // Just focus it
         return windowReducer(state, { type: "FOCUS_WINDOW", payload: { id: action.payload.id } });
       }
       const maxZIndex = state.reduce((max, w) => Math.max(max, w.zIndex), 0);
@@ -53,24 +51,24 @@ function windowReducer(state: WindowInstance[], action: Action): WindowInstance[
       return state.filter(w => w.id !== action.payload.id);
     case "FOCUS_WINDOW": {
       const maxZIndex = state.reduce((max, w) => Math.max(max, w.zIndex), 0);
-      return state.map(w => 
+      return state.map(w =>
         w.id === action.payload.id ? { ...w, zIndex: maxZIndex + 1, isMinimized: false } : w
       );
     }
     case "MINIMIZE_WINDOW":
-      return state.map(w => 
+      return state.map(w =>
         w.id === action.payload.id ? { ...w, isMinimized: true } : w
       );
     case "TOGGLE_MAXIMIZE":
-      return state.map(w => 
+      return state.map(w =>
         w.id === action.payload.id ? { ...w, isMaximized: !w.isMaximized, isMinimized: false } : w
       );
     case "MOVE_WINDOW":
-      return state.map(w => 
+      return state.map(w =>
         w.id === action.payload.id ? { ...w, position: action.payload.position } : w
       );
     case "RESIZE_WINDOW":
-      return state.map(w => 
+      return state.map(w =>
         w.id === action.payload.id ? { ...w, size: action.payload.size } : w
       );
     default:
@@ -81,7 +79,7 @@ function windowReducer(state: WindowInstance[], action: Action): WindowInstance[
 export function WindowManagerProvider({ children }: { children: ReactNode }) {
   const [windows, dispatch] = useReducer(windowReducer, []);
 
-  const openWindow = (appId: string, options?: Partial<WindowInstance>) => {
+  const openWindow = useCallback((appId: string, options?: Partial<WindowInstance>) => {
     const id = options?.id || `${appId}-${Date.now()}`;
     dispatch({
       type: "OPEN_WINDOW",
@@ -90,7 +88,7 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
         appId,
         title: options?.title || "Application",
         icon: options?.icon || "/assets/icons/app.png",
-        position: options?.position || { x: Math.max(0, 100 + (windows.length * 20)), y: Math.max(0, 100 + (windows.length * 20)) },
+        position: options?.position || { x: Math.max(0, 100 + Math.random() * 200), y: Math.max(0, 80 + Math.random() * 150) },
         size: options?.size || { width: 600, height: 400 },
         zIndex: 0,
         isMinimized: false,
@@ -99,28 +97,28 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
         props: options?.props,
       }
     });
-  };
+  }, []);
 
-  const closeWindow = (id: string) => dispatch({ type: "CLOSE_WINDOW", payload: { id } });
-  const focusWindow = (id: string) => dispatch({ type: "FOCUS_WINDOW", payload: { id } });
-  const minimizeWindow = (id: string) => dispatch({ type: "MINIMIZE_WINDOW", payload: { id } });
-  const toggleMaximize = (id: string) => dispatch({ type: "TOGGLE_MAXIMIZE", payload: { id } });
-  const moveWindow = (id: string, position: { x: number; y: number }) => dispatch({ type: "MOVE_WINDOW", payload: { id, position } });
-  const resizeWindow = (id: string, size: { width: number; height: number }) => dispatch({ type: "RESIZE_WINDOW", payload: { id, size } });
+  const closeWindow = useCallback((id: string) => dispatch({ type: "CLOSE_WINDOW", payload: { id } }), []);
+  const focusWindow = useCallback((id: string) => dispatch({ type: "FOCUS_WINDOW", payload: { id } }), []);
+  const minimizeWindow = useCallback((id: string) => dispatch({ type: "MINIMIZE_WINDOW", payload: { id } }), []);
+  const toggleMaximize = useCallback((id: string) => dispatch({ type: "TOGGLE_MAXIMIZE", payload: { id } }), []);
+  const moveWindow = useCallback((id: string, position: { x: number; y: number }) => dispatch({ type: "MOVE_WINDOW", payload: { id, position } }), []);
+  const resizeWindow = useCallback((id: string, size: { width: number; height: number }) => dispatch({ type: "RESIZE_WINDOW", payload: { id, size } }), []);
+
+  const value = useMemo(() => ({
+    windows,
+    openWindow,
+    closeWindow,
+    focusWindow,
+    minimizeWindow,
+    toggleMaximize,
+    moveWindow,
+    resizeWindow,
+  }), [windows, openWindow, closeWindow, focusWindow, minimizeWindow, toggleMaximize, moveWindow, resizeWindow]);
 
   return (
-    <WindowManagerContext.Provider
-      value={{
-        windows,
-        openWindow,
-        closeWindow,
-        focusWindow,
-        minimizeWindow,
-        toggleMaximize,
-        moveWindow,
-        resizeWindow
-      }}
-    >
+    <WindowManagerContext.Provider value={value}>
       {children}
     </WindowManagerContext.Provider>
   );

@@ -6,6 +6,21 @@
   box-sizing: border-box;
 }
 
+/* Prevent text selection globally for the desktop OS feel */
+.desktop-environment,
+.desktop-environment *,
+.win7-taskbar,
+.win7-taskbar *,
+.win7-start-menu,
+.win7-start-menu *,
+.system-gadget,
+.system-gadget *,
+.win7-toast,
+.win7-toast * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 html, body {
   height: 100%;
   overflow: hidden;
@@ -133,7 +148,7 @@ html, body {
   justify-content: center;
   margin-right: 4px;
   box-shadow: 0 0 13px rgba(255,57,80,0.54), inset 0 1px 8px rgba(255,255,255,0.42), inset 0 -8px 12px rgba(70,0,10,0.42);
-  transition: all 0.1s;
+  transition: box-shadow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.1s ease-out;
 }
 .win7-start-btn:hover {
   box-shadow: 0 0 18px rgba(255,83,102,0.74), inset 0 1px 10px rgba(255,255,255,0.56), inset 0 -8px 12px rgba(70,0,10,0.38);
@@ -202,6 +217,14 @@ html, body {
   border-radius: 7px;
   overflow: hidden;
   box-shadow: 0 14px 42px rgba(0,0,0,0.48), 0 2px 10px rgba(0,0,0,0.34);
+  will-change: transform;
+}
+/* Allow text selection only inside notepad/explorer text areas */
+.win7-window textarea,
+.win7-window .explorer-sidebar,
+.win7-window [contenteditable] {
+  user-select: text;
+  -webkit-user-select: text;
 }
 .win7-window .title-bar {
   cursor: grab;
@@ -366,42 +389,131 @@ html, body {
 }
 .wmp-controls {
   height: 48px;
-  background: linear-gradient(to bottom, #1a2a3a, #0d1820);
-  border-top: 1px solid #2a3a4a;
+  background: linear-gradient(to bottom, #162030, #0c1418);
+  border-top: 1px solid rgba(255,255,255,0.06);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   padding: 0 16px;
   flex-shrink: 0;
 }
 .wmp-ctrl-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
+  width: 34px;
+  height: 28px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
   color: #ccc;
-  font-size: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.15s;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  background-image: none;
 }
-.wmp-ctrl-btn:hover {
-  background: rgba(255,255,255,0.15);
+.wmp-ctrl-btn:hover:not(:disabled) {
+  background: rgba(255,255,255,0.12);
   color: #fff;
 }
-.wmp-ctrl-btn.play {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(to bottom, #2080d0, #1860a0);
-  border-color: rgba(255,255,255,0.25);
-  font-size: 18px;
+.wmp-ctrl-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
-.wmp-ctrl-btn.play:hover {
-  background: linear-gradient(to bottom, #3090e0, #2070b0);
+.wmp-ctrl-btn.play {
+  width: 38px;
+  height: 32px;
+  background: rgba(48,144,224,0.25);
+  border-color: rgba(48,144,224,0.4);
+  color: #fff;
+}
+.wmp-ctrl-btn.play:hover:not(:disabled) {
+  background: rgba(48,144,224,0.4);
+}
+.wmp-ctrl-btn.play:disabled {
+  opacity: 0.4;
+}
+
+/* Volume / mute area */
+.wmp-volume {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(255,255,255,0.08);
+}
+.wmp-volume-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  color: #ccc;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  box-shadow: none;
+}
+.wmp-volume-btn:hover:not(:disabled) { opacity: 1; }
+.wmp-volume-btn:disabled { opacity: 0.3; cursor: default; }
+
+/* YouTube-style volume slider */
+.wmp-volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 72px;
+  height: 3px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.wmp-volume-slider:hover {
+  background: rgba(255,255,255,0.25);
+}
+.wmp-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+  transition: transform 0.1s;
+}
+.wmp-volume-slider:hover::-webkit-slider-thumb {
+  transform: scale(1.15);
+}
+.wmp-volume-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+.wmp-volume-slider::-moz-range-track {
+  height: 3px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  border: none;
+}
+.wmp-volume-slider:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 
 /* === Retro Deck / Webamp === */
@@ -500,6 +612,19 @@ html, body {
   align-items: center;
   justify-content: center;
   font-size: 32px;
+}
+
+/* === Dragging state — prevent all selection === */
+body.rnd-dragging,
+body.rnd-dragging * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  cursor: grabbing !important;
+}
+body.rnd-resizing,
+body.rnd-resizing * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
 }
 
 /* Mobile */
