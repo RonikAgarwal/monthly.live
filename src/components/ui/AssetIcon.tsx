@@ -9,7 +9,7 @@ export const ICONS = {
   monthlyLive: "/assets/icons/apps/monthly-live.svg",
   retroDeck: "/assets/icons/apps/retro-deck.svg",
   notepad: "/assets/icons/apps/notepad.svg",
-  mediaPlayer: "/assets/icons/apps/applications-multimedia.png",
+  mediaPlayer: "/assets/icons/apps/media-player.svg",
   folder: "/assets/icons/places/folder.svg",
   folderOpen: "/assets/icons/places/folder-open.svg",
   folderDownloads: "/assets/icons/places/folder-downloads.svg",

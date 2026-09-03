@@ -28,6 +28,8 @@ const BOOT_LINES = [
   "System ready.",
 ];
 
+const TAGLINE = "presents MONTHLY.LIVE - first live DJ stream, on-campus experience";
+
 export default function GatePage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
@@ -65,7 +67,7 @@ export default function GatePage() {
           // After all lines, navigate to desktop
           setTimeout(() => setPhase("done"), 600);
         }
-      }, 200 + Math.random() * 150);
+      }, 300 + Math.random() * 150);
 
       return () => clearInterval(interval);
     }, 1200);
@@ -152,6 +154,7 @@ export default function GatePage() {
           style={{
             width: "min(80vw, 500px)",
             marginBottom: "40px",
+            textAlign: "center",
           }}
         >
           <img
@@ -159,6 +162,28 @@ export default function GatePage() {
             alt="Cherry+ Network"
             style={{ width: "100%", height: "auto" }}
           />
+
+          {/* Tagline — typed out letter-by-letter as the progress bar fills */}
+          <div
+            style={{
+              marginTop: "14px",
+              fontFamily: '"Courier New", monospace',
+              fontSize: "11px",
+              letterSpacing: "2px",
+              color: "#FC0162",
+              textShadow: "0 0 8px rgba(252,1,98,0.55), 0 0 20px rgba(252,1,98,0.25)",
+              textAlign: "center",
+              minHeight: "18px",
+              lineHeight: "1.6",
+              opacity: showLogo ? 1 : 0,
+              transition: "opacity 0.8s ease 0.5s",
+            }}
+          >
+            {TAGLINE.slice(0, Math.floor((bootLines.length / BOOT_LINES.length) * TAGLINE.length))}
+            {bootLines.length < BOOT_LINES.length && (
+              <span className="boot-cursor" style={{ color: "#FC0162" }}>█</span>
+            )}
+          </div>
         </div>
 
         {/* Boot text console */}
@@ -170,7 +195,7 @@ export default function GatePage() {
             right: "40px",
             fontFamily: '"Courier New", monospace',
             fontSize: "11px",
-            color: "#0f0",
+            color: "#FFFD99",
             lineHeight: "1.6",
             opacity: showLogo ? 1 : 0,
             transition: "opacity 0.5s ease",
@@ -178,12 +203,12 @@ export default function GatePage() {
         >
           {bootLines.map((line, i) => (
             <div key={i} className="boot-line" style={{ animationDelay: `${i * 0.05}s` }}>
-              <span style={{ color: "#0a0" }}>{"> "}</span>
+              <span style={{ color: "#999900" }}>{"> "}</span>
               {line}
             </div>
           ))}
           {bootLines.length < BOOT_LINES.length && (
-            <span className="boot-cursor" style={{ color: "#0f0" }}>
+            <span className="boot-cursor" style={{ color: "#FFFD99" }}>
               █
             </span>
           )}
@@ -206,9 +231,9 @@ export default function GatePage() {
             className="boot-progress"
             style={{
               height: "100%",
-              background: "#0f0",
+              background: "#FFFD99",
               width: `${(bootLines.length / BOOT_LINES.length) * 100}%`,
-              boxShadow: "0 0 8px #0f0",
+              boxShadow: "0 0 8px #FFFD99",
             }}
           />
         </div>

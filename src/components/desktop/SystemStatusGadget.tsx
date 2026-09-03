@@ -130,9 +130,17 @@ export default function SystemStatusGadget() {
             </div>
           </div>
 
-          {/* Cherry logo */}
-          <div style={{ textAlign: "center", marginTop: "auto" }}>
-            <AssetIcon name="cherry" size={30} alt="" />
+          {/* Cherry logo — blended into the background as a faint watermark */}
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: "auto",
+              opacity: 0.22,
+              mixBlendMode: "screen",
+              pointerEvents: "none",
+            }}
+          >
+            <AssetIcon name="cherry" size={34} alt="" />
           </div>
         </div>
       </div>

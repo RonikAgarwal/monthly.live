@@ -69,15 +69,7 @@ export default function Taskbar({ onToggleRetroDeck }: { onToggleRetroDeck: () =
               onClick={() => handleAppClick(w.id, w.isMinimized, w.zIndex)}
               title={w.title}
             >
-              <AssetIcon name={TASKBAR_ICONS[w.appId] || "textFile"} size={18} alt="" />
-              <span style={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                fontSize: "11px",
-              }}>
-                {w.title}
-              </span>
+              <AssetIcon name={TASKBAR_ICONS[w.appId] || "textFile"} size={28} alt="" />
             </button>
           ))}
         </div>
