@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="folderGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f5d76e"/>
+      <stop offset="50%" style="stop-color:#f0c040"/>
+      <stop offset="100%" style="stop-color:#d4a030"/>
+    </linearGradient>
+    <linearGradient id="folderFront" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f7dc6f"/>
+      <stop offset="100%" style="stop-color:#d4a030"/>
+    </linearGradient>
+    <linearGradient id="folderShine" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:rgba(255,255,255,0.4)"/>
+      <stop offset="100%" style="stop-color:rgba(255,255,255,0)"/>
+    </linearGradient>
+    <filter id="folderShadow" x="-10%" y="-5%" width="120%" height="120%">
+      <feDropShadow dx="1" dy="3" stdDeviation="3" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  
+  <!-- Back of folder -->
+  <path d="M30,80 L30,210 C30,218 36,225 44,225 L212,225 C220,225 226,218 226,210 L226,80 Z" 
+        fill="url(#folderGrad)" filter="url(#folderShadow)"/>
+  
+  <!-- Tab -->
+  <path d="M30,80 L30,68 C30,60 36,55 44,55 L90,55 L100,80 Z" fill="#d4a030"/>
+  
+  <!-- Front face -->
+  <path d="M30,85 L226,85 L226,210 C226,218 220,225 212,225 L44,225 C36,225 30,218 30,210 Z" 
+        fill="url(#folderFront)"/>
+  
+  <!-- Tab front -->
+  <path d="M30,85 L30,73 C30,65 36,60 44,60 L90,60 L100,85 Z" fill="#c49525"/>
+  
+  <!-- Glossy highlight -->
+  <path d="M40,90 L220,90 L220,120 L40,120 Z" fill="url(#folderShine)"/>
+  
+  <!-- Document peeking out -->
+  <rect x="55" y="65" width="80" height="100" rx="2" fill="white" stroke="#ddd" stroke-width="1"/>
+  <line x1="65" y1="85" x2="125" y2="85" stroke="#ccc" stroke-width="2"/>
+  <line x1="65" y1="100" x2="115" y2="100" stroke="#ccc" stroke-width="2"/>
+  <line x1="65" y1="115" x2="120" y2="115" stroke="#ccc" stroke-width="2"/>
+  <line x1="65" y1="130" x2="105" y2="130" stroke="#ccc" stroke-width="2"/>
+</svg>

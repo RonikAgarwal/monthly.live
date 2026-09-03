@@ -1,18 +1,15 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useBroadcastState } from "@/context/BroadcastContext";
 import { type WindowInstance } from "@/context/WindowManagerContext";
-import StreamPlayer, { type TwitchPlayer } from "../StreamPlayer";
-import AssetIcon from "../ui/AssetIcon";
+import StreamPlayer from "../StreamPlayer";
 
 export default function MediaPlayerApp({ windowInstance: _windowInstance }: { windowInstance: WindowInstance }) {
   void _windowInstance;
   const { broadcast } = useBroadcastState();
   const [uptime, setUptime] = useState("00:00:00");
   const [activeTab, setActiveTab] = useState("Now Playing");
-  const [isPlaying, setIsPlaying] = useState(false);
-  const playerRef = useRef<TwitchPlayer | null>(null);
 
   useEffect(() => {
     if (broadcast.status !== "LIVE" || !broadcast.startedAt) return;
@@ -30,35 +27,6 @@ export default function MediaPlayerApp({ windowInstance: _windowInstance }: { wi
     const int = setInterval(update, 1000);
     return () => clearInterval(int);
   }, [broadcast.status, broadcast.startedAt]);
-
-  // Reset state when stream goes offline
-  useEffect(() => {
-    if (broadcast.status === "OFFLINE") {
-      setIsPlaying(false);
-      playerRef.current = null;
-    }
-  }, [broadcast.status]);
-
-  const handlePlayerReady = useCallback((player: TwitchPlayer) => {
-    playerRef.current = player;
-    // Start muted (browser policy requires user interaction first)
-    try { player.setMuted(true); } catch { /* ignore */ }
-    setIsPlaying(true);
-  }, []);
-
-  const togglePlayPause = useCallback(() => {
-    const player = playerRef.current;
-    if (!player) return;
-    try {
-      if (isPlaying) {
-        player.pause();
-        setIsPlaying(false);
-      } else {
-        player.play();
-        setIsPlaying(true);
-      }
-    } catch { /* ignore */ }
-  }, [isPlaying]);
 
   const tabs = ["Now Playing", "Library", "Rip", "Burn", "Sync"];
 
@@ -120,7 +88,6 @@ export default function MediaPlayerApp({ windowInstance: _windowInstance }: { wi
           <StreamPlayer
             isLive={true}
             channelLogin={broadcast.channelLogin}
-            onPlayerReady={handlePlayerReady}
           />
         ) : (
           <div style={{
@@ -168,30 +135,6 @@ export default function MediaPlayerApp({ windowInstance: _windowInstance }: { wi
             {broadcast.status === "LIVE" ? "/ LIVE" : "/ OFFLINE"}
           </div>
         </div>
-      </div>
-
-      {/* Transport controls */}
-      <div className="wmp-controls">
-        <button className="wmp-ctrl-btn" title="Previous" disabled>
-          <AssetIcon name="skipBackward" size={16} alt="" />
-        </button>
-        <button className="wmp-ctrl-btn" title="Rewind" disabled>
-          <AssetIcon name="seekBackward" size={16} alt="" />
-        </button>
-        <button
-          className="wmp-ctrl-btn play"
-          title={isPlaying ? "Pause" : "Play"}
-          onClick={togglePlayPause}
-          disabled={broadcast.status !== "LIVE"}
-        >
-          <AssetIcon name={isPlaying ? "playbackPause" : "playbackStart"} size={18} alt="" />
-        </button>
-        <button className="wmp-ctrl-btn" title="Forward" disabled>
-          <AssetIcon name="seekForward" size={16} alt="" />
-        </button>
-        <button className="wmp-ctrl-btn" title="Next" disabled>
-          <AssetIcon name="skipForward" size={16} alt="" />
-        </button>
       </div>
     </div>
   );

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="binGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8e8e8"/>
+      <stop offset="50%" style="stop-color:#d0d0d0"/>
+      <stop offset="100%" style="stop-color:#b8b8b8"/>
+    </linearGradient>
+    <linearGradient id="lidGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0f0f0"/>
+      <stop offset="100%" style="stop-color:#c8c8c8"/>
+    </linearGradient>
+    <linearGradient id="recycleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4caf50"/>
+      <stop offset="100%" style="stop-color:#388e3c"/>
+    </linearGradient>
+    <filter id="binShadow" x="-15%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.25"/>
+    </filter>
+    <linearGradient id="highlight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:rgba(255,255,255,0.4)"/>
+      <stop offset="100%" style="stop-color:rgba(255,255,255,0)"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Main bin body -->
+  <path d="M65,75 L70,220 C70,228 75,235 85,235 L171,235 C181,235 186,228 186,220 L191,75 Z" 
+        fill="url(#binGrad)" stroke="#999" stroke-width="1.5" filter="url(#binShadow)"/>
+  
+  <!-- Bin ridges -->
+  <path d="M85,100 L88,210" stroke="#aaa" stroke-width="1.5" fill="none"/>
+  <path d="M105,95 L107,215" stroke="#aaa" stroke-width="1.5" fill="none"/>
+  <path d="M128,93 L128,218" stroke="#aaa" stroke-width="1.5" fill="none"/>
+  <path d="M151,95 L149,215" stroke="#aaa" stroke-width="1.5" fill="none"/>
+  <path d="M171,100 L168,210" stroke="#aaa" stroke-width="1.5" fill="none"/>
+  
+  <!-- Lid -->
+  <path d="M55,60 L60,75 L196,75 L201,60 C201,52 195,48 185,48 L71,48 C61,48 55,52 55,60 Z" 
+        fill="url(#lidGrad)" stroke="#999" stroke-width="1.5"/>
+  
+  <!-- Lid handle -->
+  <rect x="108" y="38" width="40" height="14" rx="4" fill="#888" stroke="#777" stroke-width="1"/>
+  <rect x="108" y="38" width="40" height="7" rx="3" fill="url(#highlight)"/>
+  
+  <!-- Recycle arrows (green) -->
+  <g transform="translate(128, 140)">
+    <!-- First arrow (top) -->
+    <path d="M-25,-30 L0,-10 L-8,-10 L-8,5 L8,5 L8,-10 L0,-10" 
+          fill="url(#recycleGrad)" transform="rotate(0)"/>
+    <!-- Second arrow (bottom-right) -->
+    <path d="M-25,-30 L0,-10 L-8,-10 L-8,5 L8,5 L8,-10 L0,-10" 
+          fill="url(#recycleGrad)" transform="rotate(120)"/>
+    <!-- Third arrow (bottom-left) -->
+    <path d="M-25,-30 L0,-10 L-8,-10 L-8,5 L8,5 L8,-10 L0,-10" 
+          fill="url(#recycleGrad)" transform="rotate(240)"/>
+  </g>
+  
+  <!-- Glossy highlight -->
+  <path d="M75,75 L78,190 C78,195 82,200 88,200 L95,200 L95,75 Z" fill="white" opacity="0.2"/>
+</svg>

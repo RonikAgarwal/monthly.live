@@ -119,9 +119,15 @@ export default function WindowFrame({ windowInstance, children }: WindowFramePro
           </div>
 
           <div className="title-bar-controls">
-            <button aria-label="Minimize" onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }} />
-            <button aria-label="Maximize" onClick={(e) => { e.stopPropagation(); toggleMaximize(id); }} />
-            <button aria-label="Close" onClick={(e) => { e.stopPropagation(); closeWindow(id); }} />
+            <button className="wcb-btn wcb-minimize" aria-label="Minimize" onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }}>
+              <svg width="10" height="1" viewBox="0 0 10 1"><rect width="10" height="1" fill="currentColor"/></svg>
+            </button>
+            <button className="wcb-btn wcb-maximize" aria-label="Maximize" onClick={(e) => { e.stopPropagation(); toggleMaximize(id); }}>
+              <svg width="9" height="9" viewBox="0 0 9 9"><rect x="0.5" y="0.5" width="8" height="8" fill="none" stroke="currentColor" strokeWidth="1"/></svg>
+            </button>
+            <button className="wcb-btn wcb-close" aria-label="Close" onClick={(e) => { e.stopPropagation(); closeWindow(id); }}>
+              <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.2"/></svg>
+            </button>
           </div>
         </div>
 

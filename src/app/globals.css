@@ -6,6 +6,11 @@
   box-sizing: border-box;
 }
 
+/* Kill ALL transitions from 7.css and any other source */
+*, *::before, *::after {
+  transition: none !important;
+}
+
 /* Prevent text selection globally for the desktop OS feel */
 .desktop-environment,
 .desktop-environment *,
@@ -64,6 +69,62 @@ html, body {
   50%, 100% { opacity: 0; }
 }
 
+/* === Boot Screen Animations === */
+.boot-scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 0, 0.03) 0px,
+    rgba(0, 255, 0, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  z-index: 1;
+}
+
+.boot-logo {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 1s ease, transform 1s ease;
+  z-index: 2;
+}
+
+.boot-logo-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@keyframes boot-line-appear {
+  from { opacity: 0; transform: translateX(-5px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.boot-line {
+  animation: boot-line-appear 0.15s ease forwards;
+  opacity: 0;
+}
+
+@keyframes boot-cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.boot-cursor {
+  animation: boot-cursor-blink 0.6s step-end infinite;
+}
+
+@keyframes boot-progress-glow {
+  0%, 100% { box-shadow: 0 0 8px #0f0; }
+  50% { box-shadow: 0 0 16px #0f0, 0 0 4px #0f0; }
+}
+
+.boot-progress {
+  animation: boot-progress-glow 1.5s ease-in-out infinite;
+}
+
+
 /* === Desktop wallpaper text float === */
 @keyframes floatText {
   0%, 100% { transform: translateY(0px); }
@@ -81,7 +142,6 @@ html, body {
   width: 76px;
   border: 1px solid transparent;
   border-radius: 3px;
-  transition: background 0.1s;
   user-select: none;
 }
 .desktop-icon:hover {
@@ -136,36 +196,62 @@ html, body {
 
 .win7-start-btn {
   width: 54px;
-  height: 38px;
-  border-radius: 0 19px 19px 0;
+  height: 40px;
+  border-radius: 0 8px 8px 0;
   background:
-    radial-gradient(circle at 42% 24%, rgba(255,255,255,0.82), rgba(255,255,255,0.22) 24%, transparent 38%),
-    radial-gradient(circle at 48% 54%, rgba(226,26,48,0.95), rgba(130,5,18,0.98) 64%, rgba(48,3,8,0.98) 100%);
-  border: 1px solid rgba(255,255,255,0.45);
+    radial-gradient(ellipse at 50% 60%, rgba(80,160,255,0.15) 0%, transparent 70%);
+  border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 4px;
-  box-shadow: 0 0 13px rgba(255,57,80,0.54), inset 0 1px 8px rgba(255,255,255,0.42), inset 0 -8px 12px rgba(70,0,10,0.42);
-  transition: box-shadow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.1s ease-out;
+  margin-right: 2px;
+  position: relative;
 }
 .win7-start-btn:hover {
-  box-shadow: 0 0 18px rgba(255,83,102,0.74), inset 0 1px 10px rgba(255,255,255,0.56), inset 0 -8px 12px rgba(70,0,10,0.38);
+  background:
+    radial-gradient(ellipse at 50% 60%, rgba(80,160,255,0.3) 0%, transparent 70%);
 }
 .win7-start-btn:active {
   transform: translateY(1px);
 }
-.win7-start-orb-mark {
-  width: 20px;
-  height: 20px;
-  display: block;
+.win7-start-orb {
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
+  position: relative;
   background:
-    radial-gradient(circle at 34% 30%, #ffe3e7 0 10%, transparent 11%),
-    radial-gradient(circle at 38% 58%, #ff3650 0 35%, transparent 36%),
-    radial-gradient(circle at 62% 56%, #ff3650 0 32%, transparent 33%);
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.55));
+    radial-gradient(circle at 50% 35%, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.1) 40%, transparent 60%),
+    radial-gradient(circle at 50% 50%, #3a8fd4 0%, #1a5fa8 40%, #0d3d7a 70%, #06254d 100%);
+  border: 2px solid rgba(100,180,255,0.5);
+  box-shadow:
+    0 0 12px rgba(50,140,220,0.5),
+    inset 0 2px 6px rgba(255,255,255,0.4),
+    inset 0 -3px 6px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.win7-start-orb::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 15%;
+  right: 15%;
+  height: 40%;
+  border-radius: 0 0 50% 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 100%);
+}
+.win7-start-orb-mark {
+  width: 22px;
+  height: 22px;
+  display: block;
+  position: relative;
+  z-index: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
 }
 
 /* Taskbar app buttons */
@@ -187,7 +273,6 @@ html, body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: all 0.1s;
 }
 .taskbar-app-btn:hover {
   background: linear-gradient(180deg, rgba(255,255,255,0.3), rgba(100,180,255,0.16) 52%, rgba(0,0,0,0.08));
@@ -213,6 +298,37 @@ html, body {
 }
 
 /* === Window frame overrides for Win7 Aero === */
+
+/* Title-bar control buttons: always-visible icons with hover glow */
+.win7-window .title-bar-controls button.wcb-btn {
+  background: none;
+  color: #1a1a2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease !important;
+}
+/* Kill 7.css ::before layers on our custom buttons */
+.win7-window .title-bar-controls button.wcb-btn::before,
+.win7-window .title-bar-controls button.wcb-btn:active::before,
+.win7-window .title-bar-controls button.wcb-btn:hover::before {
+  background: none !important;
+  box-shadow: none !important;
+  content: none !important;
+  opacity: 0 !important;
+  transition: none !important;
+}
+/* Remove 7.css background images from our custom buttons */
+.win7-window .title-bar-controls button.wcb-btn[aria-label] {
+  background: none !important;
+}
+.win7-window .title-bar-controls button.wcb-btn:hover {
+  background: linear-gradient(to bottom, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 50%, rgba(0,0,0,0.05) 100%) !important;
+}
+.win7-window .title-bar-controls button.wcb-close:hover {
+  background: linear-gradient(to bottom, #f0a090 0%, #d44020 50%, #a02010 100%) !important;
+  color: #fff;
+}
 .win7-window {
   border-radius: 7px;
   overflow: hidden;
@@ -274,57 +390,258 @@ html, body {
   border-radius: 7px 7px 0 0;
 }
 
-/* === Start Menu === */
+/* === Start Menu — Authentic Windows 7 Style === */
 .win7-start-menu {
   position: fixed;
   bottom: 40px;
   left: 0;
   width: 380px;
-  background: linear-gradient(to bottom, rgba(40,60,90,0.97), rgba(25,45,75,0.98));
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(100,140,200,0.4);
-  border-bottom: none;
-  border-radius: 8px 8px 0 0;
+  height: 420px;
+  display: flex;
   z-index: 10001;
-  box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
-  display: flex;
   overflow: hidden;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4), 0 0 1px rgba(0,0,0,0.5);
+  border: 1px solid rgba(100,140,200,0.5);
+  border-bottom: none;
 }
-.start-menu-left {
+
+/* Left Panel — White programs list */
+.sm-left {
   flex: 1;
-  background: rgba(255,255,255,0.95);
-  padding: 8px 0;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(to bottom, #f6f7f8 0%, #eef0f2 100%);
+  border-right: 1px solid #c4c8cc;
 }
-.start-menu-right {
-  width: 190px;
-  padding: 8px 0;
-  display: flex;
-  flex-direction: column;
-  background: rgba(30,55,90,0.6);
-}
-.start-menu-item {
+
+.sm-user-area {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 16px;
-  cursor: pointer;
-  font-size: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(to bottom, #3d6fa5 0%, #2a5585 100%);
+  border-radius: 8px 0 0 0;
+}
+
+.sm-user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 4px;
+  border: 2px solid rgba(255,255,255,0.8);
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.sm-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.sm-separator {
+  height: 1px;
+  background: #c4c8cc;
+  margin: 0;
+}
+
+.sm-programs-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+  overflow-y: auto;
+}
+
+.sm-program-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
   border: none;
   background: none;
-  width: 100%;
+  cursor: pointer;
   text-align: left;
-  transition: background 0.1s;
+  width: 100%;
 }
-.start-menu-item:hover {
-  background: rgba(80,130,200,0.25);
+
+.sm-program-item:hover {
+  background: linear-gradient(to right, #3d91f6 0%, #2c7ce0 100%);
 }
-.start-menu-item.left-item {
-  color: #222;
+
+.sm-program-item:hover .sm-program-label {
+  color: #fff;
 }
-.start-menu-item.right-item {
-  color: #e0e8f0;
+
+.sm-program-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sm-program-label {
+  font-size: 12px;
+  color: #1a1a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sm-all-programs {
+  padding: 10px 16px;
+  font-size: 12px;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  border-top: 1px solid #c4c8cc;
+}
+
+.sm-all-programs:hover {
+  background: linear-gradient(to right, #3d91f6 0%, #2c7ce0 100%);
+  color: #fff;
+}
+
+.sm-all-programs-arrow {
+  font-size: 8px;
+  color: #666;
+}
+
+.sm-all-programs:hover .sm-all-programs-arrow {
+  color: #fff;
+}
+
+.sm-search-bar {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  background: linear-gradient(to bottom, #f6f7f8, #eaecee);
+  border-top: 1px solid #c4c8cc;
+}
+
+.sm-search-input {
+  flex: 1;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid #abadb0;
+  border-radius: 2px;
+  font-size: 12px;
+  color: #767676;
+  background: #fff;
+  outline: none;
+}
+
+.sm-search-input:focus {
+  border-color: #569de5;
+}
+
+.sm-search-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: #767676;
+}
+
+/* Right Panel — Dark glass with folders */
+.sm-right {
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(to bottom, rgba(40,65,100,0.98) 0%, rgba(25,45,75,0.98) 100%);
+  border-radius: 0 8px 0 0;
+}
+
+.sm-right-items {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+}
+
+.sm-right-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  color: #fff;
+  font-size: 13px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.sm-right-item:hover {
+  background: linear-gradient(to right, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.08) 100%);
+}
+
+.sm-right-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sm-right-separator {
+  height: 1px;
+  background: rgba(255,255,255,0.15);
+  margin: 4px 10px;
+}
+
+.sm-help-item {
+  color: #e8eef6 !important;
+}
+
+.sm-shutdown-area {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.15);
+  border-radius: 0 0 8px 0;
+  gap: 0;
+}
+
+.sm-shutdown-btn {
+  padding: 5px 12px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0.08));
+  border: 1px solid rgba(255,255,255,0.4);
+  border-right: none;
+  border-radius: 3px 0 0 3px;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.sm-shutdown-btn:hover {
+  background: linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.2));
+}
+
+.sm-shutdown-arrow {
+  padding: 5px 8px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0.08));
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 0 3px 3px 0;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sm-shutdown-arrow:hover {
+  background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0.15));
 }
 
 /* === Gadget === */
@@ -353,7 +670,6 @@ html, body {
   gap: 14px;
   align-items: flex-start;
   box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-  animation: slideInRight 0.4s ease-out;
   color: #fff;
 }
 
@@ -409,7 +725,6 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
@@ -458,7 +773,6 @@ html, body {
   align-items: center;
   color: #ccc;
   opacity: 0.7;
-  transition: opacity 0.15s;
   appearance: none;
   -webkit-appearance: none;
   outline: none;
@@ -477,7 +791,6 @@ html, body {
   border-radius: 2px;
   outline: none;
   cursor: pointer;
-  transition: background 0.15s;
 }
 .wmp-volume-slider:hover {
   background: rgba(255,255,255,0.25);
@@ -491,7 +804,6 @@ html, body {
   background: #fff;
   cursor: pointer;
   box-shadow: 0 0 2px rgba(0,0,0,0.5);
-  transition: transform 0.1s;
 }
 .wmp-volume-slider:hover::-webkit-slider-thumb {
   transform: scale(1.15);
@@ -523,6 +835,25 @@ html, body {
 .retro-deck-stage { position: relative; width: 100%; height: 100%; overflow: visible; }
 /* Let Webamp windows render freely outside the Rnd frame */
 .retro-deck-stage > div { overflow: visible !important; }
+
+/* Isolate Webamp from global overrides */
+.webamp-deck-player,
+.webamp-deck-player *,
+.webamp-deck-player *::before,
+.webamp-deck-player *::after {
+  box-sizing: content-box !important;
+  transition: initial !important;
+  user-select: auto !important;
+  -webkit-user-select: auto !important;
+}
+.webamp-deck-player {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  scrollbar-width: none;
+}
+.webamp-deck-player::-webkit-scrollbar { display: none; }
 .retro-skin-widget {
   width: 100%;
   height: 100%;

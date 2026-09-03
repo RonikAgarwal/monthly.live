@@ -13,16 +13,9 @@ interface TwitchPlayer {
   dispose(): void;
 }
 
-interface TwitchWindow {
-  Twitch?: {
-    Player: new (target: string, options: Record<string, unknown>) => TwitchPlayer;
-  };
-}
-
 interface StreamPlayerProps {
   isLive: boolean;
   channelLogin?: string;
-  onPlayerReady?: (player: TwitchPlayer) => void;
 }
 
 let scriptLoaded = false;
@@ -48,47 +41,40 @@ function loadTwitchScript(): Promise<void> {
   });
 }
 
-export default function StreamPlayer({ isLive, channelLogin, onPlayerReady }: StreamPlayerProps) {
-  const [loaded, setLoaded] = useState(false);
-  const [error, setError] = useState(false);
+export default function StreamPlayer({ isLive, channelLogin }: StreamPlayerProps) {
+  const [ready, setReady] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<TwitchPlayer | null>(null);
-  const embedIdRef = useRef(`twitch-embed-${Math.random().toString(36).slice(2)}`);
 
   useEffect(() => {
-    if (!isLive || !channelLogin || !containerRef.current) {
-      setLoaded(false);
-      setError(false);
-      return;
-    }
+    if (!isLive || !channelLogin || !containerRef.current) return;
 
     let disposed = false;
+    let unmountFns: (() => void)[] = [];
 
     const setup = async () => {
       try {
         await loadTwitchScript();
         if (disposed || !containerRef.current) return;
 
-        // Clean previous embed content
+        // Clear previous content
         containerRef.current.innerHTML = "";
 
-        const tw = (window as unknown as TwitchWindow).Twitch;
-        if (!tw?.Player) {
-          setError(true);
-          return;
-        }
+        const tw = (window as unknown as { Twitch?: { Player: new (target: string, options: Record<string, unknown>) => TwitchPlayer } }).Twitch;
+        if (!tw?.Player) return;
 
-        const embedId = embedIdRef.current;
+        const embedId = `twitch-embed-${Math.random().toString(36).slice(2)}`;
         const embedDiv = document.createElement("div");
         embedDiv.id = embedId;
         embedDiv.style.width = "100%";
         embedDiv.style.height = "100%";
         containerRef.current.appendChild(embedDiv);
 
+        // Start muted so browser autoplay works
         const player = new tw.Player(embedId, {
           channel: channelLogin,
           parent: [window.location.hostname],
-          autoplay: false,
+          autoplay: true,
           muted: true,
           width: "100%",
           height: "100%",
@@ -96,84 +82,52 @@ export default function StreamPlayer({ isLive, channelLogin, onPlayerReady }: St
 
         playerRef.current = player;
 
-        // Wait for player to be ready
-        const checkReady = setInterval(() => {
-          if (disposed) { clearInterval(checkReady); return; }
+        // Poll for player ready, then unmute
+        const readyCheck = setInterval(() => {
+          if (disposed) { clearInterval(readyCheck); return; }
           try {
             const status = player.getStatus();
-            if (status === "playing" || status === "idle" || status === "ready") {
-              clearInterval(checkReady);
-              setLoaded(true);
-              setError(false);
-              onPlayerReady?.(player);
+            if (status === "playing" || status === "ready" || status === "idle") {
+              clearInterval(readyCheck);
+              if (!disposed) {
+                setReady(true);
+                // Unmute after a short delay to bypass browser autoplay policy
+                setTimeout(() => {
+                  if (!disposed) {
+                    try { player.setMuted(false); } catch { /* ignore */ }
+                  }
+                }, 500);
+              }
             }
-          } catch {
-            // Player not ready yet
-          }
-        }, 500);
+          } catch { /* not ready yet */ }
+        }, 300);
 
-        // Timeout after 15s
-        const timeout = setTimeout(() => {
-          if (!disposed && !loaded) {
-            clearInterval(checkReady);
-            setError(true);
-          }
-        }, 15_000);
-
-        return () => { clearInterval(checkReady); clearTimeout(timeout); };
-      } catch {
-        if (!disposed) setError(true);
-      }
+        unmountFns.push(() => clearInterval(readyCheck));
+      } catch { /* script load failed */ }
     };
 
-    const cleanup = setup();
+    setup();
 
     return () => {
       disposed = true;
+      unmountFns.forEach(fn => fn());
       playerRef.current?.dispose();
       playerRef.current = null;
-      cleanup?.then((fn) => fn?.());
+      setReady(false);
     };
   }, [isLive, channelLogin]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Handle mute/unmute from parent
-  const prevMutedRef = useRef(true);
-  const handleMuteChange = (muted: boolean) => {
-    if (playerRef.current && muted !== prevMutedRef.current) {
-      prevMutedRef.current = muted;
-      try { playerRef.current.setMuted(muted); } catch { /* ignore */ }
-    }
-  };
-
-  // Expose mute handler via a data attribute trick (parent reads it)
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const el = containerRef.current;
-    (el as HTMLDivElement & { _handleMuteChange?: (m: boolean) => void })._handleMuteChange = handleMuteChange;
-  });
+  if (isLive && channelLogin) {
+    return (
+      <div ref={containerRef} style={{ width: "100%", height: "100%", background: "#000" }} />
+    );
+  }
 
   return (
-    <div style={{ position: "relative", width: "100%", background: "#000", aspectRatio: "16/9" }}>
-      {isLive && channelLogin ? (
-        <div
-          ref={containerRef}
-          style={{ width: "100%", height: "100%" }}
-        />
-      ) : (
-        <img src="/assets/static.gif" alt="TV static" style={{ width: "100%", height: "100%", display: "block", objectFit: "contain" }} />
-      )}
-      {isLive && channelLogin && !loaded && !error && (
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", fontFamily: '"Courier New", monospace', fontSize: "11px", color: "#555" }}>
-          connecting to twitch...
-        </div>
-      )}
-      {isLive && channelLogin && error && (
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#000", fontFamily: '"Courier New", monospace', fontSize: "12px", color: "#cc0000", textAlign: "center" }}>
-          twitch player unavailable
-        </div>
-      )}
-    </div>
+    <img
+      src="/assets/static.gif"
+      alt="TV static"
+      style={{ width: "100%", height: "100%", display: "block", objectFit: "contain" }}
+    />
   );
 }
-
-export type { TwitchPlayer };

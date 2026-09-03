@@ -14,6 +14,14 @@ const SKINS = [
   { name: "Zaxon Remake", url: "/webamp/skins/ZaxonRemake1-0.wsz" },
 ];
 
+// Free CC-licensed tracks from the Internet Archive
+const DEMO_TRACKS = [
+  { url: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Chad_Crouch/Arps/Chad_Crouch_-_Shipping_Lanes.mp3", defaultName: "Shipping Lanes", artistName: "Chad Crouch", duration: 170 },
+  { url: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Chad_Crouch/Enthusiast/Chad_Crouch_-_Enthusiast.mp3", defaultName: "Enthusiast", artistName: "Chad Crouch", duration: 145 },
+  { url: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Ketsa/Raising_Energy/Ketsa_-_06_-_Raising_Energy.mp3", defaultName: "Raising Energy", artistName: "Ketsa", duration: 234 },
+  { url: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Chad_Crouch/Decompress/Chad_Crouch_-_City_Glitch.mp3", defaultName: "City Glitch", artistName: "Chad Crouch", duration: 112 },
+];
+
 export default function RetroDeckApp() {
   const hostRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Webamp | null>(null);
@@ -36,6 +44,7 @@ export default function RetroDeckApp() {
       if (disposed || !hostRef.current || !WebampPlayer.browserIsSupported()) return;
 
       player = new WebampPlayer({
+        initialTracks: DEMO_TRACKS,
         initialSkin: { url: SKINS[0].url },
         availableSkins: SKINS,
         windowLayout: {

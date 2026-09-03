@@ -53,7 +53,11 @@ export default function Taskbar({ onToggleRetroDeck }: { onToggleRetroDeck: () =
           onClick={() => setShowStart(!showStart)}
           title="Start"
         >
-          <span className="win7-start-orb-mark" aria-hidden="true" />
+          <div className="win7-start-orb">
+            <span className="win7-start-orb-mark" aria-hidden="true">
+              <img src="/assets/icons/apps/cherry-network.png" alt="" style={{ width: "100%", height: "100%", display: "block" }} />
+            </span>
+          </div>
         </button>
 
         {/* Pinned / Active apps */}

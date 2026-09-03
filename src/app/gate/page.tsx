@@ -15,17 +15,68 @@ const ERROR_MESSAGES = [
   "■",
 ];
 
+const BOOT_LINES = [
+  "CHERRY+ NETWORK OS v3.2.1",
+  "BIOS POST... OK",
+  "Memory check: 256MB... OK",
+  "Initializing display adapter...",
+  "Loading kernel modules...",
+  "Mounting file system...",
+  "Starting network services...",
+  "Authenticating user session...",
+  "Loading desktop environment...",
+  "System ready.",
+];
+
 export default function GatePage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [phase, setPhase] = useState<"input" | "checking" | "connecting" | "done">("input");
+  const [phase, setPhase] = useState<"input" | "checking" | "connecting" | "booting" | "done">("input");
   const [statusText, setStatusText] = useState("");
+  const [bootLines, setBootLines] = useState<string[]>([]);
+  const [bootLineIndex, setBootLineIndex] = useState(0);
+  const [showLogo, setShowLogo] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  // Boot sequence animation
+  useEffect(() => {
+    if (phase !== "booting") return;
+
+    // Show logo first
+    setShowLogo(true);
+
+    // Start boot lines after logo appears
+    const logoDelay = setTimeout(() => {
+      let idx = 0;
+      const interval = setInterval(() => {
+        if (idx < BOOT_LINES.length) {
+          setBootLines((prev) => [...prev, BOOT_LINES[idx]]);
+          setBootLineIndex(idx);
+          idx++;
+        } else {
+          clearInterval(interval);
+          // After all lines, navigate to desktop
+          setTimeout(() => setPhase("done"), 600);
+        }
+      }, 200 + Math.random() * 150);
+
+      return () => clearInterval(interval);
+    }, 1200);
+
+    return () => clearTimeout(logoDelay);
+  }, [phase]);
+
+  // Navigate when done
+  useEffect(() => {
+    if (phase === "done") {
+      router.push("/");
+    }
+  }, [phase, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +94,7 @@ export default function GatePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
       });
-      
+
       if (!res.ok) {
         throw new Error("Invalid password");
       }
@@ -56,8 +107,8 @@ export default function GatePage() {
 
       await new Promise((r) => setTimeout(r, 300 + Math.random() * 200));
 
-      setPhase("done");
-      router.push("/");
+      // Start boot sequence
+      setPhase("booting");
     } catch {
       setPhase("input");
       setError(ERROR_MESSAGES[Math.floor(Math.random() * ERROR_MESSAGES.length)]);
@@ -66,6 +117,96 @@ export default function GatePage() {
     }
   };
 
+  // Boot screen
+  if (phase === "booting") {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "#000",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 10000,
+          overflow: "hidden",
+        }}
+      >
+        {/* Scanline overlay */}
+        <div className="boot-scanlines" />
+
+        {/* Logo */}
+        <div
+          className={`boot-logo ${showLogo ? "boot-logo-visible" : ""}`}
+          style={{
+            width: "min(80vw, 500px)",
+            marginBottom: "40px",
+          }}
+        >
+          <img
+            src="/assets/icons/cherry-plus-logo.svg"
+            alt="Cherry+ Network"
+            style={{ width: "100%", height: "auto" }}
+          />
+        </div>
+
+        {/* Boot text console */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "60px",
+            left: "40px",
+            right: "40px",
+            fontFamily: '"Courier New", monospace',
+            fontSize: "11px",
+            color: "#0f0",
+            lineHeight: "1.6",
+            opacity: showLogo ? 1 : 0,
+            transition: "opacity 0.5s ease",
+          }}
+        >
+          {bootLines.map((line, i) => (
+            <div key={i} className="boot-line" style={{ animationDelay: `${i * 0.05}s` }}>
+              <span style={{ color: "#0a0" }}>{"> "}</span>
+              {line}
+            </div>
+          ))}
+          {bootLines.length < BOOT_LINES.length && (
+            <span className="boot-cursor" style={{ color: "#0f0" }}>
+              █
+            </span>
+          )}
+        </div>
+
+        {/* Progress bar */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "30px",
+            left: "40px",
+            right: "40px",
+            height: "2px",
+            background: "#111",
+            opacity: showLogo ? 1 : 0,
+            transition: "opacity 0.5s ease",
+          }}
+        >
+          <div
+            className="boot-progress"
+            style={{
+              height: "100%",
+              background: "#0f0",
+              width: `${(bootLines.length / BOOT_LINES.length) * 100}%`,
+              boxShadow: "0 0 8px #0f0",
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Checking / connecting screen
   if (phase === "checking" || phase === "connecting") {
     return (
       <div
