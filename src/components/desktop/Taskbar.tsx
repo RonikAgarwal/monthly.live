@@ -4,8 +4,17 @@ import React, { useState, useEffect } from "react";
 import { useWindowManager } from "@/context/WindowManagerContext";
 import { useBroadcastState } from "@/context/BroadcastContext";
 import StartMenu from "./StartMenu";
+import AssetIcon, { IconName } from "../ui/AssetIcon";
 
-export default function Taskbar() {
+const TASKBAR_ICONS: Record<string, IconName> = {
+  "media-player": "mediaPlayer",
+  "retro-deck": "retroDeck",
+  "file-explorer": "folder",
+  notepad: "notepad",
+  "recycle-bin": "trash",
+};
+
+export default function Taskbar({ onToggleRetroDeck }: { onToggleRetroDeck: () => void }) {
   const { windows, focusWindow, minimizeWindow } = useWindowManager();
   const { broadcast } = useBroadcastState();
   const [showStart, setShowStart] = useState(false);
@@ -44,12 +53,7 @@ export default function Taskbar() {
           onClick={() => setShowStart(!showStart)}
           title="Start"
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <rect x="1" y="1" width="8" height="8" rx="1" fill="#f25022" />
-            <rect x="11" y="1" width="8" height="8" rx="1" fill="#7fba00" />
-            <rect x="1" y="11" width="8" height="8" rx="1" fill="#00a4ef" />
-            <rect x="11" y="11" width="8" height="8" rx="1" fill="#ffb900" />
-          </svg>
+          <span className="win7-start-orb-mark" aria-hidden="true" />
         </button>
 
         {/* Pinned / Active apps */}
@@ -61,13 +65,7 @@ export default function Taskbar() {
               onClick={() => handleAppClick(w.id, w.isMinimized, w.zIndex)}
               title={w.title}
             >
-              <span style={{ fontSize: "14px" }}>
-                {w.appId === "media-player" ? "🎵" :
-                 w.appId === "retro-deck" ? "🎛️" :
-                 w.appId === "file-explorer" ? "📁" :
-                 w.appId === "notepad" ? "📝" :
-                 w.appId === "recycle-bin" ? "🗑️" : "📄"}
-              </span>
+              <AssetIcon name={TASKBAR_ICONS[w.appId] || "textFile"} size={18} alt="" />
               <span style={{
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -94,8 +92,8 @@ export default function Taskbar() {
               <span className="live-pulse">●</span> LIVE
             </div>
           )}
-          <span style={{ fontSize: "13px", opacity: 0.7 }}>🔊</span>
-          <span style={{ fontSize: "13px", opacity: 0.7 }}>📶</span>
+          <AssetIcon name="volumeHigh" size={18} alt="Volume" />
+          <AssetIcon name="networkWireless" size={18} alt="Network" />
           <div style={{ textAlign: "right", lineHeight: 1.3 }}>
             <div style={{ fontSize: "11px" }}>{time}</div>
             <div style={{ fontSize: "10px", opacity: 0.7 }}>{date}</div>
@@ -103,7 +101,7 @@ export default function Taskbar() {
         </div>
       </div>
 
-      {showStart && <StartMenu onClose={() => setShowStart(false)} />}
+      {showStart && <StartMenu onClose={() => setShowStart(false)} onToggleRetroDeck={onToggleRetroDeck} />}
     </>
   );
 }

@@ -4,8 +4,10 @@ import React, { useEffect, useState } from "react";
 import { WindowInstance } from "@/context/WindowManagerContext";
 import { useBroadcastState } from "@/context/BroadcastContext";
 import StreamPlayer from "../StreamPlayer";
+import AssetIcon from "../ui/AssetIcon";
 
-export default function MediaPlayerApp({ windowInstance }: { windowInstance: WindowInstance }) {
+export default function MediaPlayerApp({ windowInstance: _windowInstance }: { windowInstance: WindowInstance }) {
+  void _windowInstance;
   const { broadcast } = useBroadcastState();
   const [uptime, setUptime] = useState("00:00:00");
   const [activeTab, setActiveTab] = useState("Now Playing");
@@ -74,7 +76,7 @@ export default function MediaPlayerApp({ windowInstance }: { windowInstance: Win
             <>
               <span>VIEWERS</span>
               <span style={{ color: "#fff", fontWeight: 600 }}>
-                👥 {broadcast.watchingHere > 0 ? (broadcast.watchingHere >= 1000 ? `${(broadcast.watchingHere / 1000).toFixed(1)}K` : broadcast.watchingHere) : "—"}
+                {broadcast.watchingHere > 0 ? (broadcast.watchingHere >= 1000 ? `${(broadcast.watchingHere / 1000).toFixed(1)}K` : broadcast.watchingHere) : "-"}
               </span>
             </>
           )}
@@ -94,10 +96,12 @@ export default function MediaPlayerApp({ windowInstance }: { windowInstance: Win
             alignItems: "center",
             justifyContent: "center",
             fontFamily: '"Courier New", monospace',
-            background: "radial-gradient(ellipse, #0a1520 0%, #000 100%)",
+            background: "#000",
+            overflow: "hidden",
           }}>
-            <div style={{ fontSize: "28px", color: "#2a4060", marginBottom: "8px", letterSpacing: "6px" }}>NO SIGNAL</div>
-            <div style={{ fontSize: "11px", color: "#1a3050" }}>NEXT TRANSMISSION: TBD</div>
+            <img src="/assets/static.gif" alt="No Signal" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.4 }} />
+            <div style={{ position: "relative", zIndex: 1, fontSize: "28px", color: "#fff", marginBottom: "8px", letterSpacing: "6px", textShadow: "0 2px 8px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.8)" }}>NO SIGNAL</div>
+            <div style={{ position: "relative", zIndex: 1, fontSize: "11px", color: "#bbb", textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>NEXT TRANSMISSION: TBD</div>
           </div>
         )}
       </div>
@@ -133,17 +137,25 @@ export default function MediaPlayerApp({ windowInstance }: { windowInstance: Win
 
       {/* Transport controls */}
       <div className="wmp-controls">
-        <button className="wmp-ctrl-btn" title="Previous">⏮</button>
-        <button className="wmp-ctrl-btn" title="Rewind">⏪</button>
-        <button className="wmp-ctrl-btn play" title="Play/Pause">
-          {broadcast.status === "LIVE" ? "⏸" : "▶"}
+        <button className="wmp-ctrl-btn" title="Previous">
+          <AssetIcon name="skipBackward" size={18} alt="" />
         </button>
-        <button className="wmp-ctrl-btn" title="Forward">⏩</button>
-        <button className="wmp-ctrl-btn" title="Next">⏭</button>
+        <button className="wmp-ctrl-btn" title="Rewind">
+          <AssetIcon name="seekBackward" size={18} alt="" />
+        </button>
+        <button className="wmp-ctrl-btn play" title="Play/Pause">
+          <AssetIcon name={broadcast.status === "LIVE" ? "playbackPause" : "playbackStart"} size={20} alt="" />
+        </button>
+        <button className="wmp-ctrl-btn" title="Forward">
+          <AssetIcon name="seekForward" size={18} alt="" />
+        </button>
+        <button className="wmp-ctrl-btn" title="Next">
+          <AssetIcon name="skipForward" size={18} alt="" />
+        </button>
 
         {/* Volume slider */}
         <div style={{ marginLeft: "16px", display: "flex", alignItems: "center", gap: "6px" }}>
-          <span style={{ fontSize: "12px", color: "#8899aa" }}>🔊</span>
+          <AssetIcon name="volumeHigh" size={18} alt="Volume" />
           <input
             type="range"
             min="0"

@@ -8,15 +8,16 @@ import Taskbar from "./Taskbar";
 import SystemStatusGadget from "./SystemStatusGadget";
 import NotificationToast from "./NotificationToast";
 import RetroDeckApp from "../apps/RetroDeckApp";
+import AssetIcon, { IconName } from "../ui/AssetIcon";
 
 const DESKTOP_ICONS = [
-  { id: "computer", label: "Computer", appId: "file-explorer", emoji: "🖥️", props: { folderId: "root" } },
-  { id: "cherry", label: "Cherry\nNetwork", appId: "file-explorer", emoji: "🍒", props: { folderId: "cherry" } },
-  { id: "monthly-live", label: "MONTHLY\n.LIVE", appId: "media-player", emoji: "📺", props: {} },
-  { id: "events", label: "Events", appId: "file-explorer", emoji: "📅", props: { folderId: "events" } },
-  { id: "retro-deck", label: "Retro Deck", appId: "retro-deck", emoji: "🎛️", props: {}, size: { width: 700, height: 590 } },
-  { id: "notepad", label: "Notepad", appId: "notepad", emoji: "📝", props: { content: "CHERRY NETWORK\nSRM CAMPUS\n\nWE ARE A COLLECTIVE OF\nMUSIC LOVERS, CREATORS,\nAND DREAMERS.\n\nUNITED BY SOUND.\nDRIVEN BY PASSION.\n\nTHIS IS MORE THAN A CLUB.\nTHIS IS A MOVEMENT.\n\nWELCOME TO THE NETWORK.\n\nSTAY TUNED.\nSTAY CONNECTED.\nSTAY CHERRY.\n\n#CherryNetwork #SRM #MonthlyLive" } },
-  { id: "recycle-bin", label: "Recycle Bin", appId: "recycle-bin", emoji: "🗑️", props: {} },
+  { id: "computer", label: "Computer", appId: "file-explorer", icon: "computer" as IconName, props: { folderId: "root" } },
+  { id: "cherry", label: "Cherry\nNetwork", appId: "file-explorer", icon: "cherry" as IconName, props: { folderId: "cherry" } },
+  { id: "monthly-live", label: "MONTHLY\n.LIVE", appId: "media-player", icon: "monthlyLive" as IconName, props: {} },
+  { id: "events", label: "Events", appId: "file-explorer", icon: "folderDocuments" as IconName, props: { folderId: "events" } },
+  { id: "retro-deck", label: "Retro Deck", appId: "retro-deck", icon: "retroDeck" as IconName, props: {}, size: { width: 700, height: 590 } },
+  { id: "notepad", label: "Notepad", appId: "notepad", icon: "notepad" as IconName, props: { content: "CHERRY NETWORK\nSRM CAMPUS\n\nWE ARE A COLLECTIVE OF\nMUSIC LOVERS, CREATORS,\nAND DREAMERS.\n\nUNITED BY SOUND.\nDRIVEN BY PASSION.\n\nTHIS IS MORE THAN A CLUB.\nTHIS IS A MOVEMENT.\n\nWELCOME TO THE NETWORK.\n\nSTAY TUNED.\nSTAY CONNECTED.\nSTAY CHERRY.\n\n#CherryNetwork #SRM #MonthlyLive" } },
+  { id: "recycle-bin", label: "Recycle Bin", appId: "recycle-bin", icon: "trash" as IconName, props: {} },
 ];
 
 export default function Desktop() {
@@ -64,46 +65,8 @@ export default function Desktop() {
         height: "100vh",
         position: "relative",
         overflow: "hidden",
-        background: "linear-gradient(135deg, #0a1628 0%, #0d2040 25%, #102848 50%, #0a1e38 75%, #060e1c 100%)",
       }}
     >
-      {/* Wallpaper text overlay — matching the reference */}
-      <div
-        style={{
-          position: "absolute",
-          right: "40px",
-          top: "50%",
-          transform: "translateY(-50%)",
-          textAlign: "right",
-          pointerEvents: "none",
-          zIndex: 0,
-          opacity: 0.08,
-        }}
-      >
-        <div style={{ fontFamily: '"Courier New", monospace', fontSize: "72px", fontWeight: "bold", color: "#fff", letterSpacing: "6px", lineHeight: 1.1 }}>
-          MONTHLY.LIVE
-        </div>
-        <div style={{ fontFamily: '"Courier New", monospace', fontSize: "28px", color: "#fff", letterSpacing: "4px", marginTop: "8px" }}>
-          CHERRY NETWORK
-        </div>
-        <div style={{ fontFamily: '"Courier New", monospace', fontSize: "18px", color: "#fff", letterSpacing: "3px", marginTop: "4px" }}>
-          SRM CAMPUS
-        </div>
-      </div>
-
-      {/* Subtle decorative glow */}
-      <div style={{
-        position: "absolute",
-        top: "30%",
-        right: "10%",
-        width: "500px",
-        height: "500px",
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(200,30,30,0.06) 0%, transparent 70%)",
-        pointerEvents: "none",
-        zIndex: 0,
-      }} />
-
       {/* Desktop Icons */}
       <div
         style={{
@@ -126,16 +89,8 @@ export default function Desktop() {
             onClick={(e) => handleIconClick(icon.id, e)}
             onDoubleClick={(e) => handleIconDoubleClick(icon, e)}
           >
-            <div style={{
-              width: "48px",
-              height: "48px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "32px",
-              filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))",
-            }}>
-              {icon.emoji}
+            <div className="desktop-icon-art">
+              <AssetIcon name={icon.icon} size={48} alt="" />
             </div>
             <div className="desktop-icon-label">
               {icon.label}
@@ -145,14 +100,10 @@ export default function Desktop() {
       </div>
 
       {/* Open windows */}
-      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 2 }}>
-        <div style={{ position: "relative", width: "100%", height: "100%", pointerEvents: "none" }}>
+      <div className="desktop-windows-container" style={{ position: "absolute", inset: 0, zIndex: 2, overflow: "hidden", pointerEvents: "none" }}>
           {windows.map((w) => (
-            <div key={w.id} style={{ pointerEvents: "auto" }}>
-              <AppRegistry windowInstance={w} />
-            </div>
+              <AppRegistry key={w.id} windowInstance={w} />
           ))}
-        </div>
       </div>
 
       {retroDeckVisible && (
@@ -160,11 +111,13 @@ export default function Desktop() {
           size={{ width: 520, height: 620 }}
           position={retroDeckPosition}
           onDragStop={(_e, d) => setRetroDeckPosition({ x: d.x, y: d.y })}
-          bounds="parent"
+          bounds=".desktop-environment"
           enableResizing={false}
           style={{ zIndex: 3, position: "absolute" }}
+          dragHandleClassName="retro-deck-drag-handle"
         >
           <div className="retro-deck-stage">
+            <div className="retro-deck-drag-handle" style={{ position: "absolute", top: 0, left: 0, right: 0, height: 14, cursor: "grab", zIndex: 10 }} />
             <RetroDeckApp />
           </div>
         </Rnd>
@@ -174,7 +127,7 @@ export default function Desktop() {
         size={{ width: 260, height: 56 }}
         position={skinWidgetPosition}
         onDragStop={(_e, d) => setSkinWidgetPosition({ x: d.x, y: d.y })}
-        bounds="parent"
+        bounds=".desktop-environment"
         enableResizing={false}
         style={{ zIndex: 4, position: "absolute" }}
       >
@@ -202,7 +155,7 @@ export default function Desktop() {
       <NotificationToast />
 
       {/* Taskbar */}
-      <Taskbar />
+      <Taskbar onToggleRetroDeck={() => setRetroDeckVisible((visible) => !visible)} />
     </div>
   );
 }

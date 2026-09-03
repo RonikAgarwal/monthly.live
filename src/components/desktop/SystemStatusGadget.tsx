@@ -3,16 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { Rnd } from "react-rnd";
 import { useBroadcastState } from "@/context/BroadcastContext";
+import AssetIcon from "../ui/AssetIcon";
 
 export default function SystemStatusGadget() {
   const { broadcast } = useBroadcastState();
   const [uptime, setUptime] = useState("00:00:00");
   const [closed, setClosed] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (broadcast.status !== "LIVE" || !broadcast.startedAt) return;
@@ -29,18 +25,18 @@ export default function SystemStatusGadget() {
     return () => clearInterval(int);
   }, [broadcast.status, broadcast.startedAt]);
 
-  if (closed || !mounted) return null;
+  if (closed) return null;
 
   return (
     <Rnd
       default={{
-        x: typeof window !== "undefined" ? window.innerWidth - 240 : 800,
+        x: 1020,
         y: 60,
         width: 210,
         height: 220,
       }}
       enableResizing={false}
-      bounds="parent"
+      bounds=".desktop-environment"
       style={{ zIndex: 9000 }}
       dragHandleClassName="gadget-drag-handle"
     >
@@ -136,7 +132,7 @@ export default function SystemStatusGadget() {
 
           {/* Cherry logo */}
           <div style={{ textAlign: "center", marginTop: "auto" }}>
-            <span style={{ fontSize: "24px" }}>🍒</span>
+            <AssetIcon name="cherry" size={30} alt="" />
           </div>
         </div>
       </div>

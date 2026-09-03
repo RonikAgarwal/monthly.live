@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { useBroadcastState } from "@/context/BroadcastContext";
+import AssetIcon from "../ui/AssetIcon";
 
 export default function NotificationToast() {
   const { broadcast } = useBroadcastState();
@@ -32,13 +33,13 @@ export default function NotificationToast() {
         fontSize: "20px",
         flexShrink: 0,
       }}>
-        🍒
+        <AssetIcon name="cherry" size={26} alt="" />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 700, fontSize: "12px", marginBottom: "4px" }}>MONTHLY.LIVE</div>
         <div style={{ fontSize: "11px", color: "#b0c0d8", lineHeight: 1.4 }}>
           We are LIVE right now!<br />
-          Tap in and vibe with us. 🔥
+          Tap in and vibe with us.
         </div>
       </div>
       <button

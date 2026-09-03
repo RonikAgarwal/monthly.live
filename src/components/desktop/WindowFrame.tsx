@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Rnd } from "react-rnd";
 import { useWindowManager, WindowInstance } from "@/context/WindowManagerContext";
 
@@ -13,6 +13,10 @@ export default function WindowFrame({ windowInstance, children }: WindowFramePro
   const { id, title, position, size, zIndex, isMinimized, isMaximized, isResizable } = windowInstance;
   const { focusWindow, closeWindow, minimizeWindow, toggleMaximize, moveWindow, resizeWindow } = useWindowManager();
   const [isMobile, setIsMobile] = useState(false);
+  const [localPos, setLocalPos] = useState<{ x: number; y: number } | null>(null);
+  const [localSize, setLocalSize] = useState<{ width: number; height: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 900);
@@ -21,112 +25,92 @@ export default function WindowFrame({ windowInstance, children }: WindowFramePro
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // Clear local overrides when context state changes (e.g. cascaded, restored)
+  useEffect(() => {
+    setLocalPos(null);
+    setLocalSize(null);
+  }, [position, size]);
+
   if (isMinimized) return null;
 
-  const handleDragStop = (_e: any, d: any) => moveWindow(id, { x: d.x, y: d.y });
-  const handleResizeStop = (_e: any, _dir: any, ref: any, _delta: any, pos: any) => {
+  const handleDragStart = () => {
+    setIsDragging(true);
+    focusWindow(id);
+  };
+  
+  const handleDrag = (_e: unknown, d: { x: number; y: number }) => {
+    setLocalPos({ x: d.x, y: d.y });
+  };
+
+  const handleDragStop = (_e: unknown, d: { x: number; y: number }) => {
+    setIsDragging(false);
+    moveWindow(id, { x: d.x, y: d.y });
+  };
+
+  const handleResizeStart = () => {
+    setIsResizing(true);
+    focusWindow(id);
+  };
+
+  const handleResize = (_e: unknown, _dir: unknown, ref: HTMLElement, _delta: unknown, pos: { x: number; y: number }) => {
+    setLocalSize({ width: parseInt(ref.style.width, 10), height: parseInt(ref.style.height, 10) });
+    setLocalPos(pos);
+  };
+
+  const handleResizeStop = (_e: unknown, _dir: unknown, ref: HTMLElement, _delta: unknown, pos: { x: number; y: number }) => {
+    setIsResizing(false);
     resizeWindow(id, { width: parseInt(ref.style.width, 10), height: parseInt(ref.style.height, 10) });
     moveWindow(id, pos);
   };
 
-  const currentSize = isMaximized || isMobile ? { width: "100%" as any, height: "calc(100% - 40px)" as any } : size;
-  const currentPosition = isMaximized || isMobile ? { x: 0, y: 0 } : position;
+  const currentSize = isMaximized || isMobile ? { width: "100%", height: "calc(100% - 40px)" } : (localSize || size);
+  const currentPosition = isMaximized || isMobile ? { x: 0, y: 0 } : (localPos || position);
 
   return (
     <Rnd
       size={currentSize}
       position={currentPosition}
+      onDragStart={handleDragStart}
+      onDrag={handleDrag}
       onDragStop={handleDragStop}
+      onResizeStart={handleResizeStart}
+      onResize={handleResize}
       onResizeStop={handleResizeStop}
       disableDragging={isMaximized || isMobile}
       enableResizing={isResizable && !isMaximized && !isMobile}
       minWidth={350}
       minHeight={250}
-      bounds="parent"
+      bounds=".desktop-windows-container"
       style={{
         zIndex,
         display: "flex",
         flexDirection: "column",
-        position: isMaximized || isMobile ? "fixed" : "absolute",
+        pointerEvents: "auto",
       }}
       onMouseDown={() => focusWindow(id)}
-      dragHandleClassName="win7-title-bar"
+      dragHandleClassName="title-bar"
     >
-      <div className="win7-window" style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%", background: "#f0f0f0" }}>
-        {/* Title bar */}
+      <div className={`window glass active win7-window`} style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%" }}>
         <div
-          className="win7-title-bar"
-          style={{
-            height: "30px",
-            background: "linear-gradient(to bottom, rgba(60,100,160,0.95), rgba(35,70,120,0.95))",
-            borderBottom: "1px solid rgba(0,0,0,0.3)",
-            display: "flex",
-            alignItems: "center",
-            padding: "0 6px",
-            cursor: "grab",
-            borderRadius: "6px 6px 0 0",
-            backdropFilter: "blur(8px)",
-            flexShrink: 0,
-          }}
+          className="title-bar"
           onDoubleClick={() => toggleMaximize(id)}
         >
-          <div style={{
-            flex: 1,
-            color: "#fff",
-            fontSize: "12px",
-            textShadow: "0 1px 2px rgba(0,0,0,0.5)",
-            overflow: "hidden",
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
-            paddingLeft: "4px",
-            fontWeight: 400,
-          }}>
+          <div className="title-bar-text">
             {title}
           </div>
 
-          <div style={{ display: "flex", gap: "2px" }}>
-            <button
-              onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }}
-              style={{
-                width: "26px", height: "18px", border: "1px solid rgba(255,255,255,0.2)",
-                borderRadius: "2px", background: "linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(255,255,255,0.05))",
-                color: "#fff", cursor: "pointer", fontSize: "10px", display: "flex", alignItems: "center", justifyContent: "center",
-                padding: 0,
-              }}
-              title="Minimize"
-            >
-              ─
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); toggleMaximize(id); }}
-              style={{
-                width: "26px", height: "18px", border: "1px solid rgba(255,255,255,0.2)",
-                borderRadius: "2px", background: "linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(255,255,255,0.05))",
-                color: "#fff", cursor: "pointer", fontSize: "10px", display: "flex", alignItems: "center", justifyContent: "center",
-                padding: 0,
-              }}
-              title="Maximize"
-            >
-              □
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); closeWindow(id); }}
-              style={{
-                width: "26px", height: "18px", border: "1px solid rgba(200,50,50,0.5)",
-                borderRadius: "2px", background: "linear-gradient(to bottom, #e04040, #c02020)",
-                color: "#fff", cursor: "pointer", fontSize: "12px", display: "flex", alignItems: "center", justifyContent: "center",
-                padding: 0,
-              }}
-              title="Close"
-            >
-              ✕
-            </button>
+          <div className="title-bar-controls">
+            <button aria-label="Minimize" onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }} />
+            <button aria-label="Maximize" onClick={(e) => { e.stopPropagation(); toggleMaximize(id); }} />
+            <button aria-label="Close" onClick={(e) => { e.stopPropagation(); closeWindow(id); }} />
           </div>
         </div>
 
-        {/* Window body */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
+        <div className="window-body win7-window-body" style={{ position: "relative" }}>
           {children}
+          {(isDragging || isResizing) && (
+            <div style={{ position: "absolute", inset: 0, zIndex: 9999, cursor: isDragging ? "grabbing" : "nwse-resize" }} />
+          )}
         </div>
       </div>
     </Rnd>

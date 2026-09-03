@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { WindowInstance, useWindowManager } from "@/context/WindowManagerContext";
+import AssetIcon, { IconName } from "../ui/AssetIcon";
 
 const FILE_SYSTEM: Record<string, { title: string; breadcrumb: string; items: { id: string; label: string; type: "folder" | "file" | "shortcut"; target?: string }[] }> = {
   root: {
@@ -95,6 +96,13 @@ export default function FileExplorerApp({ windowInstance }: { windowInstance: Wi
     openWindow("file-explorer", { title: FILE_SYSTEM[fid]?.title || fid, props: { folderId: fid } });
   };
 
+  const getFileIcon = (item: typeof folder.items[0]): IconName => {
+    if (item.type === "folder") return "folder";
+    if (item.target === "media-player") return "monthlyLive";
+    if (item.label.endsWith(".jpg")) return "imageFile";
+    return "textFile";
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", background: "#fff" }}>
       {/* Toolbar */}
@@ -151,32 +159,32 @@ export default function FileExplorerApp({ windowInstance }: { windowInstance: Wi
         <div className="explorer-sidebar">
           <div className="explorer-sidebar-header">▾ Favorites</div>
           <button className="explorer-sidebar-item" onClick={() => sidebarNavigate("cherry")}>
-            <span>🖥️</span> Desktop
+            <AssetIcon name="computer" size={16} alt="" /> Desktop
           </button>
           <button className="explorer-sidebar-item" onClick={() => sidebarNavigate("cherry")}>
-            <span>📥</span> Downloads
+            <AssetIcon name="folderDownloads" size={16} alt="" /> Downloads
           </button>
           <button className="explorer-sidebar-item" onClick={() => sidebarNavigate("cherry")}>
-            <span>⏰</span> Recent Places
+            <AssetIcon name="folderOpen" size={16} alt="" /> Recent Places
           </button>
 
           <div className="explorer-sidebar-header" style={{ marginTop: "8px" }}>▾ Libraries</div>
           <button className="explorer-sidebar-item" onClick={() => sidebarNavigate("cherry")}>
-            <span>📄</span> Documents
+            <AssetIcon name="folderDocuments" size={16} alt="" /> Documents
           </button>
           <button className="explorer-sidebar-item" onClick={() => sidebarNavigate("cherry")}>
-            <span>🎵</span> Music
+            <AssetIcon name="folderMusic" size={16} alt="" /> Music
           </button>
           <button className="explorer-sidebar-item" onClick={() => sidebarNavigate("gallery")}>
-            <span>🖼️</span> Pictures
+            <AssetIcon name="folderPictures" size={16} alt="" /> Pictures
           </button>
           <button className="explorer-sidebar-item" onClick={() => sidebarNavigate("cherry")}>
-            <span>🎬</span> Videos
+            <AssetIcon name="folderVideos" size={16} alt="" /> Videos
           </button>
 
           <div className="explorer-sidebar-header" style={{ marginTop: "8px" }}>▾ Computer</div>
           <button className="explorer-sidebar-item" onClick={() => sidebarNavigate("cherry")} style={{ fontWeight: 600 }}>
-            <span>💾</span> CHERRY_NETWORK (C:)
+            <AssetIcon name="computer" size={16} alt="" /> CHERRY_NETWORK (C:)
           </button>
 
           <div className="explorer-sidebar-header" style={{ marginTop: "8px" }}>▸ Network</div>
@@ -236,7 +244,8 @@ export default function FileExplorerApp({ windowInstance }: { windowInstance: Wi
                 }}
               >
                 <div className="explorer-file-icon">
-                  {item.type === "folder" ? "📁" : item.type === "shortcut" ? "🔗" : (item.label.endsWith(".txt") ? "📄" : "📋")}
+                  <AssetIcon name={getFileIcon(item)} size={42} alt="" />
+                  {item.type === "shortcut" && <AssetIcon name="shortcut" size={15} alt="" className="explorer-shortcut-badge" />}
                 </div>
                 <div style={{ fontSize: "11px", textAlign: "center", wordBreak: "break-word", color: "#222", lineHeight: 1.3 }}>
                   {item.label}
