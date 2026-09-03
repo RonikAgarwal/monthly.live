@@ -27,28 +27,48 @@ export default function GatePage() {
   // const [phase, setPhase] = useState<"input" | "checking" | "connecting" | "done">("input");
   const [statusText, setStatusText] = useState("");
   const [bootLines, setBootLines] = useState<string[]>([]);
-  const [bootLineIndex, setBootLineIndex] = useState(0);
-  const [showLogo, setShowLogo] = useState(false);
+  const [gateMode, setGateMode] = useState<"open" | "locked" | null>(null);
+  // The logo is visible whenever the boot screen is showing
+  const showLogo = phase === "booting";
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
+  // Ask the backend whether the site is open or password locked.
+  // When open, skip the password form and boot straight through.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/gate", { method: "GET", cache: "no-store" });
+        const data = await res.json();
+        if (cancelled) return;
+        if (data?.mode === "open") {
+          setPhase("booting");
+        } else {
+          setGateMode("locked");
+        }
+      } catch {
+        if (!cancelled) setGateMode("locked");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Boot sequence animation
   useEffect(() => {
     if (phase !== "booting") return;
 
-    // Show logo first
-    setShowLogo(true);
-
-    // Start boot lines after logo appears
+    // Start boot lines after the logo has had a moment to appear
     const logoDelay = setTimeout(() => {
       let idx = 0;
       const interval = setInterval(() => {
         if (idx < BOOT_LINES.length) {
           setBootLines((prev) => [...prev, BOOT_LINES[idx]]);
-          setBootLineIndex(idx);
           idx++;
         } else {
           clearInterval(interval);
@@ -63,12 +83,30 @@ export default function GatePage() {
     return () => clearTimeout(logoDelay);
   }, [phase]);
 
-  // Navigate when done
+  // Navigate when done — silently sign in first when the site is open
   useEffect(() => {
-    if (phase === "done") {
-      router.push("/");
-    }
-  }, [phase, router]);
+    if (phase !== "done") return;
+    let cancelled = false;
+    (async () => {
+      try {
+        // Open-mode boot never entered a password, so silently sign in now.
+        if (gateMode !== "locked") {
+          const res = await fetch("/api/gate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password: "" }),
+          });
+          if (!res.ok) throw new Error("Open sign-in failed");
+        }
+        if (!cancelled) router.push("/");
+      } catch {
+        if (!cancelled) router.replace("/gate");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [phase, router, gateMode]);
 
   // [REVERT] New simplified navigation (uncomment this, comment out the useEffect above):
   // const handleSubmit = async (e: React.FormEvent) => {
@@ -115,6 +153,33 @@ export default function GatePage() {
       setShowDenied(true);
     }
   };
+
+  // Waiting on gate config from the backend (before it resolves to locked/open)
+  if (gateMode === null && phase === "input") {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "#000",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 10000,
+        }}
+      >
+        <span
+          style={{
+            fontFamily: '"Courier New", monospace',
+            fontSize: "13px",
+            color: "#333",
+          }}
+        >
+          ...
+        </span>
+      </div>
+    );
+  }
 
   // Boot screen
   if (phase === "booting") {

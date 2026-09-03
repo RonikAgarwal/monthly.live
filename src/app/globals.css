@@ -1110,3 +1110,23 @@ body.rnd-resizing * {
   animation: page-in 0.3s ease-out;
 }
 
+/* === /adminpw admin console — strip 7.css button chrome ===
+   7.css styles every bare <button> (focus pulse glow, hover gradient
+   layers, dotted focus outline). This page is a plain terminal-style
+   control panel, so remove that chrome here only. */
+.adminpw-console button {
+  animation: none !important;
+  transition: none !important;
+}
+.adminpw-console button::before,
+.adminpw-console button::after {
+  content: none !important;
+}
+/* Flat, subtle red border on hover for the two option cards (never blue) */
+.adminpw-console .adminpw-option {
+  transition: border-color 0.15s ease !important;
+}
+.adminpw-console .adminpw-option:hover {
+  border-color: #d04a4a !important;
+}
+

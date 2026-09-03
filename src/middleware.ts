@@ -10,7 +10,9 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/api/stream') ||
     pathname.startsWith('/api/heartbeat') ||
     pathname === '/gate' ||
-    pathname === '/api/gate' || 
+    pathname === '/api/gate' ||
+    pathname === '/adminpw' ||
+    pathname === '/api/adminpw' ||
     pathname === '/favicon.ico'
   ) {
     return NextResponse.next();

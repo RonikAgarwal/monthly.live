@@ -64,6 +64,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // When the site is set to OPEN via /adminpw, visitors get in without a password
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/gate", { method: "GET", cache: "no-store" });
+        const data = await res.json();
+        if (cancelled || data?.mode !== "open") return;
+        await authenticate("");
+      } catch {
+        // Leave locked behaviour untouched
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [authenticate]);
+
   const logout = useCallback(() => {
     setIsAuthenticated(false);
     localStorage.removeItem(AUTH_KEY);
