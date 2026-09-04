@@ -103,6 +103,13 @@ textarea {
 .boot-logo-visible {
   opacity: 1;
   transform: scale(1);
+  /* CSS transitions are globally disabled, so fade in via keyframes */
+  animation: boot-logo-in 1s ease forwards;
+}
+
+@keyframes boot-logo-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes boot-line-appear {

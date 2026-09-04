@@ -28,13 +28,16 @@ export default function GatePage() {
   // const [phase, setPhase] = useState<"input" | "checking" | "connecting" | "done">("input");
   const [statusText, setStatusText] = useState("");
   const [bootLines, setBootLines] = useState<string[]>([]);
+  const [typedChars, setTypedChars] = useState(0);
+  const [progress, setProgress] = useState(0);
   const [gateMode, setGateMode] = useState<"open" | "locked" | null>(null);
   // A kicked visitor arrives at /gate?expired=1
   const [kicked, setKicked] = useState(
     () => typeof window !== "undefined" && new URLSearchParams(window.location.search).has("expired")
   );
-  // The logo is visible whenever the boot screen is showing
-  const showLogo = phase === "booting";
+  // The logo is visible whenever the boot screen is showing (kept through
+  // "done" so nothing flashes away before the fade overlay covers the swap)
+  const showLogo = phase === "booting" || phase === "done";
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -58,6 +61,9 @@ export default function GatePage() {
         const data = await res.json();
         if (cancelled) return;
         if (data?.mode === "open") {
+          setBootLines([]);
+          setTypedChars(0);
+          setProgress(0);
           setPhase("booting");
         } else {
           setGateMode("locked");
@@ -71,28 +77,56 @@ export default function GatePage() {
     };
   }, []);
 
-  // Boot sequence animation
+  // Boot sequence animation — one requestAnimationFrame timeline drives the
+  // console lines, the tagline typing, and the progress bar together, so the
+  // bar flows continuously and letters stream in one-by-one instead of
+  // jumping in steps. (CSS transitions are globally disabled in this project,
+  // so per-frame updates are what make this smooth.)
   useEffect(() => {
     if (phase !== "booting") return;
 
-    // Start boot lines after the logo has had a moment to appear
+    const LINE_MS = 480; // one console line every 480ms
+    const HOLD_MS = 800; // pause on "System ready." before navigating
+    const TOTAL_MS = BOOT_LINES.length * LINE_MS;
+    let raf = 0;
+    let start = 0;
+
+    const easeInOut = (t: number) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    const tick = (now: number) => {
+      const elapsed = now - start;
+
+      // Console lines at a steady cadence (no random jitter)
+      const lineCount = Math.min(BOOT_LINES.length, Math.floor(elapsed / LINE_MS) + 1);
+      setBootLines((prev) =>
+        prev.length === lineCount ? prev : BOOT_LINES.slice(0, lineCount)
+      );
+
+      // Tagline + progress bar: continuous, eased, and in sync
+      const eased = easeInOut(Math.min(1, elapsed / TOTAL_MS));
+      setProgress(Math.min(100, Math.round(eased * 100)));
+      setTypedChars(Math.min(TAGLINE.length, Math.floor(eased * TAGLINE.length)));
+
+      if (elapsed < TOTAL_MS + HOLD_MS) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setProgress(100);
+        setTypedChars(TAGLINE.length);
+        setPhase("done");
+      }
+    };
+
+    // Start the timeline after the logo has had a moment to appear
     const logoDelay = setTimeout(() => {
-      let idx = 0;
-      const interval = setInterval(() => {
-        if (idx < BOOT_LINES.length) {
-          setBootLines((prev) => [...prev, BOOT_LINES[idx]]);
-          idx++;
-        } else {
-          clearInterval(interval);
-          // After all lines, navigate to desktop
-          setTimeout(() => setPhase("done"), 600);
-        }
-      }, 300 + Math.random() * 150);
+      start = performance.now();
+      raf = requestAnimationFrame(tick);
+    }, 1400);
 
-      return () => clearInterval(interval);
-    }, 1200);
-
-    return () => clearTimeout(logoDelay);
+    return () => {
+      clearTimeout(logoDelay);
+      cancelAnimationFrame(raf);
+    };
   }, [phase]);
 
   // Navigate when done — silently sign in first when the site is open
@@ -169,7 +203,10 @@ export default function GatePage() {
 
       await new Promise((r) => setTimeout(r, 300 + Math.random() * 200));
 
-      // Start boot sequence
+      // Start boot sequence (fresh animation state)
+      setBootLines([]);
+      setTypedChars(0);
+      setProgress(0);
       setPhase("booting");
     } catch {
       setPhase("input");
@@ -256,8 +293,8 @@ export default function GatePage() {
               transition: "opacity 0.8s ease 0.5s",
             }}
           >
-            {TAGLINE.slice(0, Math.floor((bootLines.length / BOOT_LINES.length) * TAGLINE.length))}
-            {bootLines.length < BOOT_LINES.length && (
+            {TAGLINE.slice(0, typedChars)}
+            {typedChars < TAGLINE.length && (
               <span className="boot-cursor" style={{ color: "#FC0162" }}>█</span>
             )}
           </div>
@@ -309,7 +346,7 @@ export default function GatePage() {
             style={{
               height: "100%",
               background: "#FFFD99",
-              width: `${(bootLines.length / BOOT_LINES.length) * 100}%`,
+              width: `${progress}%`,
               boxShadow: "0 0 8px #FFFD99",
             }}
           />
