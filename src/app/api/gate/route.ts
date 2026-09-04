@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
-import { getGateMode, verifyGateAccess } from "@/lib/gate";
+import { getGateGeneration, getGateMode, verifyGateAccess } from "@/lib/gate";
 
 export const dynamic = "force-dynamic";
 
-/** Public gate config — tells the gate page whether it must ask for a password. */
+/** Public gate config — mode plus the current session generation for stale-session checks. */
 export async function GET() {
-  const mode = await getGateMode();
-  return NextResponse.json({ mode }, { headers: { "Cache-Control": "no-store" } });
+  const [mode, generation] = await Promise.all([getGateMode(), getGateGeneration()]);
+  return NextResponse.json(
+    { mode, generation },
+    { headers: { "Cache-Control": "no-store" } }
+  );
 }
 
 export async function POST(request: Request) {
@@ -21,10 +24,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false }, { status: 401 });
     }
 
-    const response = NextResponse.json({ success: true });
+    // The cookie carries the session generation it was issued at; middleware
+    // rejects it once the password changes and the generation is bumped.
+    const generation = await getGateGeneration();
+    const response = NextResponse.json({ success: true, generation });
     response.cookies.set({
       name: "monthly-live-auth",
-      value: "true",
+      value: String(generation),
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

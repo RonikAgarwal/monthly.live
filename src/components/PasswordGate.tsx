@@ -19,12 +19,25 @@ export default function PasswordGate({ onComplete }: { onComplete: () => void })
   const { authenticate } = useAuth();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  // A kicked mobile visitor is flagged in sessionStorage by the auth poller
+  const [kicked, setKicked] = useState(() => {
+    try {
+      return sessionStorage.getItem("monthly:gate-kicked") === "1";
+    } catch {
+      return false;
+    }
+  });
   const [phase, setPhase] = useState<"input" | "checking" | "connecting" | "done">("input");
   const [statusText, setStatusText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
+    try {
+      sessionStorage.removeItem("monthly:gate-kicked");
+    } catch {
+      // Ignore storage failures
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,7 +110,8 @@ export default function PasswordGate({ onComplete }: { onComplete: () => void })
         justifyContent: "center",
         alignItems: "center",
         zIndex: 10000,
-        padding: "20px",
+        padding:
+          "max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left))",
       }}
     >
       {/* Subtle noise texture */}
@@ -124,6 +138,22 @@ export default function PasswordGate({ onComplete }: { onComplete: () => void })
           password:
         </div>
 
+        {kicked && (
+          <div
+            style={{
+              fontFamily: '"Courier New", monospace',
+              fontSize: "10px",
+              color: "#FFFD99",
+              letterSpacing: "1px",
+              marginBottom: "10px",
+              maxWidth: "220px",
+              lineHeight: "1.5",
+            }}
+          >
+            session expired — enter the current password to continue
+          </div>
+        )}
+
         <div style={{ position: "relative", marginBottom: "12px" }}>
           <input
             ref={inputRef}
@@ -132,6 +162,7 @@ export default function PasswordGate({ onComplete }: { onComplete: () => void })
             onChange={(e) => {
               setPassword(e.target.value);
               setError("");
+              setKicked(false);
             }}
             style={{
               width: "200px",
@@ -140,7 +171,8 @@ export default function PasswordGate({ onComplete }: { onComplete: () => void })
               borderBottom: "1px solid #333",
               color: "#888",
               fontFamily: '"Courier New", monospace',
-              fontSize: "13px",
+              // 16px minimum so iOS Safari doesn't auto-zoom when focused
+              fontSize: "16px",
               padding: "4px 0",
               outline: "none",
               letterSpacing: "3px",

@@ -38,6 +38,15 @@ html, body {
   color: #fff;
 }
 
+/* Mobile ergonomics: no double-tap zoom delay on controls. Pinch zoom stays
+   available (inputs are kept at >=16px so iOS never auto-zooms into them). */
+input,
+button,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
 /* === Scrollbar (Win7 style) === */
 ::-webkit-scrollbar { width: 14px; }
 ::-webkit-scrollbar-track { background: #f0f0f0; border-left: 1px solid #ccc; }
@@ -1110,13 +1119,38 @@ body.rnd-resizing * {
   animation: page-in 0.3s ease-out;
 }
 
+/* Fade overlay that bridges the gate boot screen into the desktop page.
+   Rendered by ClientLayout when the gate navigates after booting; stays
+   opaque while the desktop paints underneath, then fades away. */
+.cherry-boot-fade {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 2147483647;
+  pointer-events: none;
+  animation: cherry-boot-fade-out 0.55s ease-out 0.4s forwards;
+}
+@keyframes cherry-boot-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 /* === /adminpw admin console — strip 7.css button chrome ===
    7.css styles every bare <button> (focus pulse glow, hover gradient
    layers, dotted focus outline). This page is a plain terminal-style
-   control panel, so remove that chrome here only. */
-.adminpw-console button {
+   control panel, so remove that chrome here only — flat black buttons,
+   never blue, in any state. */
+.adminpw-console button,
+.adminpw-console button:hover,
+.adminpw-console button:active,
+.adminpw-console button:focus,
+.adminpw-console button:focus-visible {
   animation: none !important;
   transition: none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
 .adminpw-console button::before,
 .adminpw-console button::after {

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "7.css/dist/7.css";
 import ClientLayout from "./ClientLayout";
@@ -6,6 +6,15 @@ import ClientLayout from "./ClientLayout";
 export const metadata: Metadata = {
   title: "MONTHLY.LIVE",
   description: "one room. one signal.",
+};
+
+// Width-aware viewport that uses the safe areas on notched phones. No zoom
+// restrictions: two-finger pinch stays available, only the automatic zoom on
+// small inputs is prevented (inputs are sized >= 16px).
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { readGateSessionGeneration, writeGateSessionGeneration } from "@/lib/gateSession";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -17,27 +18,6 @@ const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const restoreSession = window.setTimeout(() => {
-    // Check existing session
-    try {
-      const stored = localStorage.getItem(AUTH_KEY);
-      if (stored) {
-        const data = JSON.parse(stored);
-        if (data.authenticated && data.expiresAt > Date.now()) {
-          setIsAuthenticated(true);
-        } else {
-          localStorage.removeItem(AUTH_KEY);
-        }
-      }
-    } catch {
-      localStorage.removeItem(AUTH_KEY);
-    }
-    setIsLoading(false);
-    }, 0);
-    return () => window.clearTimeout(restoreSession);
-  }, []);
 
   const authenticate = useCallback(async (password: string): Promise<boolean> => {
     try {
@@ -56,6 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             expiresAt: Date.now() + SESSION_DURATION,
           })
         );
+        writeGateSessionGeneration(typeof data?.generation === "number" ? data.generation : null);
         return true;
       }
       return false;
@@ -64,23 +45,82 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // When the site is set to OPEN via /adminpw, visitors get in without a password
+  // Restore an existing session; with no session, silently sign in when the
+  // site is set to OPEN via /adminpw. isLoading only clears once this settles,
+  // so the password screen never flashes for open-site visitors.
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    const restore = window.setTimeout(async () => {
+      let authed = false;
       try {
-        const res = await fetch("/api/gate", { method: "GET", cache: "no-store" });
-        const data = await res.json();
-        if (cancelled || data?.mode !== "open") return;
-        await authenticate("");
+        const stored = localStorage.getItem(AUTH_KEY);
+        if (stored) {
+          const data = JSON.parse(stored);
+          if (data.authenticated && data.expiresAt > Date.now()) {
+            authed = true;
+            setIsAuthenticated(true);
+          } else {
+            localStorage.removeItem(AUTH_KEY);
+          }
+        }
       } catch {
-        // Leave locked behaviour untouched
+        localStorage.removeItem(AUTH_KEY);
       }
-    })();
+
+      if (!authed && !cancelled) {
+        try {
+          const res = await fetch("/api/gate", { method: "GET", cache: "no-store" });
+          const data = await res.json();
+          if (!cancelled && data?.mode === "open") {
+            authed = await authenticate("");
+          }
+        } catch {
+          // Gate state unavailable — fall through to locked behaviour
+        }
+      }
+      if (!cancelled) setIsLoading(false);
+    }, 0);
     return () => {
       cancelled = true;
+      window.clearTimeout(restore);
     };
   }, [authenticate]);
+
+  // Kick stale sessions: when the gate password changes, the session generation
+  // bumps, so a signed-in mobile client drops back to the password screen.
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const res = await fetch("/api/gate", { method: "GET", cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        const stored = readGateSessionGeneration();
+        if (data?.mode === "locked" && stored !== null && stored !== Number(data.generation)) {
+          setIsAuthenticated(false);
+          try {
+            localStorage.removeItem(AUTH_KEY);
+            sessionStorage.setItem("monthly:gate-kicked", "1");
+          } catch {
+            // Ignore storage failures
+          }
+        }
+      } catch {
+        // Offline or gate unavailable — keep the current view
+      }
+    };
+    check();
+    const interval = window.setInterval(check, 15000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") check();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
+  }, []);
 
   const logout = useCallback(() => {
     setIsAuthenticated(false);

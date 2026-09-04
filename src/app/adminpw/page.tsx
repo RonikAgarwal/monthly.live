@@ -89,10 +89,11 @@ export default function AdminPwPage() {
         color: "#888",
         fontFamily: mono.fontFamily,
         display: "flex",
-        alignItems: "center",
         justifyContent: "center",
+        overflowY: "auto",
         zIndex: 10000,
-        padding: "20px",
+        padding:
+          "max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left))",
       }}
     >
       {/* Subtle noise texture */}
@@ -106,7 +107,7 @@ export default function AdminPwPage() {
         }}
       />
 
-      <div style={{ position: "relative", width: "min(92vw, 480px)" }}>
+      <div style={{ position: "relative", width: "min(92vw, 480px)", margin: "auto" }}>
         <div style={{ letterSpacing: "3px", fontSize: "12px", color: "#999", marginBottom: "6px" }}>
           CHERRY+ NETWORK
         </div>
@@ -208,10 +209,11 @@ export default function AdminPwPage() {
                 borderBottom: "1px solid #333",
                 color: "#bbb",
                 fontFamily: mono.fontFamily,
-                fontSize: "13px",
+                // 16px minimum so iOS Safari doesn't auto-zoom when focused
+                fontSize: "16px",
                 padding: "4px 0",
                 outline: "none",
-                letterSpacing: "3px",
+                letterSpacing: "2px",
                 boxSizing: "border-box",
               }}
               autoComplete="new-password"

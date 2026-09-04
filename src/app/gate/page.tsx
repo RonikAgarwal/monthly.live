@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { writeGateSessionGeneration } from "@/lib/gateSession";
 
 const BOOT_LINES = [
   "CHERRY+ NETWORK OS v3.2.1",
@@ -28,12 +29,23 @@ export default function GatePage() {
   const [statusText, setStatusText] = useState("");
   const [bootLines, setBootLines] = useState<string[]>([]);
   const [gateMode, setGateMode] = useState<"open" | "locked" | null>(null);
+  // A kicked visitor arrives at /gate?expired=1
+  const [kicked, setKicked] = useState(
+    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).has("expired")
+  );
   // The logo is visible whenever the boot screen is showing
   const showLogo = phase === "booting";
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
+  }, []);
+
+  // Clean the ?expired=1 flag out of the URL so a refresh doesn't repeat it
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has("expired")) {
+      window.history.replaceState(null, "", "/gate");
+    }
   }, []);
 
   // Ask the backend whether the site is open or password locked.
@@ -97,7 +109,14 @@ export default function GatePage() {
             body: JSON.stringify({ password: "" }),
           });
           if (!res.ok) throw new Error("Open sign-in failed");
+          const data = await res.json();
+          writeGateSessionGeneration(typeof data?.generation === "number" ? data.generation : null);
         }
+        if (cancelled) return;
+        // Raise the fade overlay first so the swap to the desktop is hidden,
+        // then navigate once the overlay has painted.
+        window.dispatchEvent(new CustomEvent("cherry:fade-from-boot"));
+        await new Promise((r) => setTimeout(r, 140));
         if (!cancelled) router.push("/");
       } catch {
         if (!cancelled) router.replace("/gate");
@@ -136,6 +155,11 @@ export default function GatePage() {
       if (!res.ok) {
         throw new Error("Invalid password");
       }
+
+      // Remember which session generation this login belongs to, so stale
+      // sessions can be detected after the password changes.
+      const data = await res.json();
+      writeGateSessionGeneration(typeof data?.generation === "number" ? data.generation : null);
 
       setPhase("connecting");
       setStatusText("connecting...");
@@ -181,8 +205,9 @@ export default function GatePage() {
     );
   }
 
-  // Boot screen
-  if (phase === "booting") {
+  // Boot screen — also stays visible while the silent open sign-in finishes
+  // after the lines complete (phase "done"), so the password form never flashes.
+  if (phase === "booting" || phase === "done") {
     return (
       <div
         style={{
@@ -332,7 +357,8 @@ export default function GatePage() {
         justifyContent: "center",
         alignItems: "center",
         zIndex: 10000,
-        padding: "20px",
+        padding:
+          "max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left))",
       }}
     >
       <div
@@ -358,6 +384,22 @@ export default function GatePage() {
           password:
         </div>
 
+        {kicked && (
+          <div
+            style={{
+              fontFamily: '"Courier New", monospace',
+              fontSize: "10px",
+              color: "#FFFD99",
+              letterSpacing: "1px",
+              marginBottom: "10px",
+              maxWidth: "220px",
+              lineHeight: "1.5",
+            }}
+          >
+            session expired — enter the current password to continue
+          </div>
+        )}
+
         <div style={{ position: "relative", marginBottom: "12px" }}>
           <input
             ref={inputRef}
@@ -365,6 +407,7 @@ export default function GatePage() {
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
+              setKicked(false);
             }}
             style={{
               width: "200px",
@@ -373,7 +416,8 @@ export default function GatePage() {
               borderBottom: "1px solid #333",
               color: "#888",
               fontFamily: '"Courier New", monospace',
-              fontSize: "13px",
+              // 16px minimum so iOS Safari doesn't auto-zoom when focused
+              fontSize: "16px",
               padding: "4px 0",
               outline: "none",
               letterSpacing: "3px",

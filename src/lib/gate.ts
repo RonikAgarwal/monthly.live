@@ -4,6 +4,7 @@ export type GateMode = "open" | "locked";
 
 const MODE_KEY = "monthly:gate:mode";
 const PASSWORD_KEY = "monthly:gate:password";
+const GENERATION_KEY = "monthly:gate:generation";
 
 function envPassword(): string {
   return process.env.SITE_ACCESS_PASSWORD || "admin";
@@ -34,12 +35,29 @@ export async function openGate(): Promise<void> {
   await redis.set(MODE_KEY, "open");
 }
 
-/** Stores a new gate password and locks the site with it. */
+/**
+ * Session generation — bumped every time the password changes so that
+ * sessions issued under an older password stop being valid immediately.
+ */
+export async function getGateGeneration(): Promise<number> {
+  const redis = getRedis();
+  if (!redis) return 0;
+  const gen = await redis.get<number>(GENERATION_KEY);
+  return typeof gen === "number" && gen > 0 ? gen : 0;
+}
+
+/**
+ * Stores a new gate password and locks the site with it. Locking is the only
+ * way the site can go back from OPEN to LOCKED, and it ALWAYS bumps the
+ * session generation — even when the password happens to be unchanged — so
+ * every open-mode visitor is forced to sign in again.
+ */
 export async function lockGateWithPassword(password: string): Promise<void> {
   const redis = getRedis();
   if (!redis) throw new Error("Redis is not configured");
   await redis.set(PASSWORD_KEY, password);
   await redis.set(MODE_KEY, "locked");
+  await redis.incr(GENERATION_KEY);
 }
 
 /**

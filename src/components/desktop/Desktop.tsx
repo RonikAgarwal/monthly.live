@@ -9,6 +9,7 @@ import SystemStatusGadget from "./SystemStatusGadget";
 import NotificationToast from "./NotificationToast";
 import RetroDeckApp from "../apps/RetroDeckApp";
 import AssetIcon, { IconName } from "../ui/AssetIcon";
+import { readGateSessionGeneration } from "@/lib/gateSession";
 
 const DESKTOP_ICONS = [
   { id: "computer", label: "Computer", appId: "file-explorer", icon: "computer" as IconName, props: { folderId: "root" } },
@@ -37,6 +38,39 @@ export default function Desktop() {
       size: { width: 700, height: 560 },
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Bounce stale sessions back to the gate: when the admin changes the
+  // password, the session generation bumps, so signed-in clients are sent to
+  // /gate to enter the new password.
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const res = await fetch("/api/gate", { method: "GET", cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        const stored = readGateSessionGeneration();
+        if (data?.mode === "locked" && stored !== null && stored !== Number(data.generation)) {
+          // Full reload so the middleware re-checks the stale cookie server-side
+          // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+          window.location.assign("/gate?expired=1");
+        }
+      } catch {
+        // Offline or gate unavailable — keep the current view
+      }
+    };
+    check();
+    const interval = window.setInterval(check, 15000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") check();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
+  }, []);
 
   const handleIconClick = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();

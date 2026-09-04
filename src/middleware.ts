@@ -1,7 +1,17 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getGateGeneration } from '@/lib/gate';
 
-export function middleware(request: NextRequest) {
+// Redirect to the gate, marking the redirect with ?expired=1 when the visitor
+// already had a session that is no longer valid (so the gate can say why).
+function redirectToGate(request: NextRequest, expired: boolean) {
+  const url = request.nextUrl.clone();
+  url.pathname = '/gate';
+  if (expired) url.searchParams.set('expired', '1');
+  return NextResponse.redirect(url);
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   if (
@@ -18,15 +28,31 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // The rest requires the cookie
+  // The rest requires a cookie issued for the current gate session generation.
+  // The generation is bumped whenever the site locks (e.g. on a password
+  // change), which invalidates every older cookie and bounces those sessions
+  // back to /gate.
   const authCookie = request.cookies.get('monthly-live-auth');
-  if (!authCookie || authCookie.value !== 'true') {
-    const url = request.nextUrl.clone();
-    url.pathname = '/gate';
-    return NextResponse.redirect(url);
+
+  if (!authCookie) {
+    return redirectToGate(request, false);
   }
 
-  return NextResponse.next();
+  if (authCookie.value === 'true') {
+    // Sessions issued before the generation feature: treat as stale.
+    return redirectToGate(request, true);
+  }
+
+  try {
+    const expected = String(await getGateGeneration());
+    if (authCookie.value === expected) {
+      return NextResponse.next();
+    }
+  } catch {
+    // Storage unavailable — treat as unauthenticated below.
+  }
+
+  return redirectToGate(request, true);
 }
 
 export const config = {
