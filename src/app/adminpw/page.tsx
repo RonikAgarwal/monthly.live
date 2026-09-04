@@ -84,7 +84,10 @@ export default function AdminPwPage() {
       className="adminpw-console"
       style={{
         position: "fixed",
-        inset: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
         background: "#000",
         color: "#888",
         fontFamily: mono.fontFamily,

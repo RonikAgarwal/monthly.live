@@ -20,10 +20,17 @@ export default function Home() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  // Tell ClientLayout the desktop/mobile page has actually painted, so the
+  // boot-fade overlay can start revealing it (it stays opaque until now).
+  useEffect(() => {
+    if (isMobile === null) return;
+    window.dispatchEvent(new CustomEvent("cherry:desktop-ready"));
+  }, [isMobile]);
+
   // SSR / initial render — show nothing to avoid flash
   if (isMobile === null) {
     return (
-      <div style={{ position: "fixed", inset: 0, background: "#000" }} />
+      <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, left: 0, background: "#000" }} />
     );
   }
 

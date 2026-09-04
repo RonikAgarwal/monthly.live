@@ -221,7 +221,10 @@ export default function GatePage() {
       <div
         style={{
           position: "fixed",
-          inset: 0,
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
           background: "#000",
           display: "flex",
           alignItems: "center",
@@ -249,7 +252,10 @@ export default function GatePage() {
       <div
         style={{
           position: "fixed",
-          inset: 0,
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
           background: "#000",
           display: "flex",
           flexDirection: "column",
@@ -279,6 +285,7 @@ export default function GatePage() {
 
           {/* Tagline — typed out letter-by-letter as the progress bar fills */}
           <div
+            className="boot-fade-in"
             style={{
               marginTop: "14px",
               fontFamily: '"Courier New", monospace',
@@ -302,6 +309,7 @@ export default function GatePage() {
 
         {/* Boot text console */}
         <div
+          className="boot-fade-in"
           style={{
             position: "absolute",
             bottom: "60px",
@@ -330,6 +338,7 @@ export default function GatePage() {
 
         {/* Progress bar */}
         <div
+          className="boot-fade-in"
           style={{
             position: "absolute",
             bottom: "30px",
@@ -361,7 +370,10 @@ export default function GatePage() {
       <div
         style={{
           position: "fixed",
-          inset: 0,
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
           background: "#000",
           display: "flex",
           alignItems: "center",
@@ -387,7 +399,10 @@ export default function GatePage() {
     <div
       style={{
         position: "fixed",
-        inset: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
         background: "#000",
         display: "flex",
         flexDirection: "column",
@@ -501,7 +516,10 @@ export default function GatePage() {
           }}
           style={{
             position: "fixed",
-            inset: 0,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
             zIndex: 10001,
             background: "rgba(0, 0, 0, 0.88)",
             display: "flex",
