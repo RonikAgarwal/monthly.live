@@ -407,9 +407,21 @@ textarea {
   -webkit-user-select: text;
 }
 .win7-window .title-bar {
-  cursor: grab;
+  cursor: default;
   flex-shrink: 0;
   padding-right: 6px;
+  display: flex;
+  align-items: center;
+}
+.win7-window .title-bar-drag-area {
+  cursor: grab;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.win7-window .title-bar-drag-area:active {
+  cursor: grabbing;
 }
 .win7-window .title-bar-text {
   overflow: hidden;
